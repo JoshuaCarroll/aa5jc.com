@@ -1,0 +1,232 @@
+/** LCARS SDK 16323.311 - USS Not Affiliated Theme
+* This file is a part of the LCARS SDK.
+* https://github.com/AricwithanA/LCARS-SDK/blob/master/LICENSE.md
+* For more information please go to http://www.lcarssdk.org.
+**/
+
+[class*="bg-"], 
+[class*="bg-"] > *:not([class*="bg-"]){
+	background-color:#003366;
+	border-color:#003366;	
+}
+
+.bg-1,
+.bg-1 > *:not([class*="bg-"]){
+	background-color:#666666;
+	border-color:#666666;	
+}
+.bg-2,
+.bg-2 > *:not([class*="bg-"]){
+	background-color:#e5cb4f;
+	border-color:#e5cb4f;	
+}
+.bg-3,
+.bg-3 > *:not([class*="bg-"]){
+	background-color:#5a92b7;
+	border-color:#5a92b7;
+}
+.bg-4,
+.bg-4 > *:not([class*="bg-"]){
+	background-color:#93dfff;
+	border-color:#93dfff;	
+}
+.bg-2-dark,
+.bg-2-dark > *:not([class*="bg-"]){
+	background-color:#856b00;
+	border-color:#856b00;	
+}
+.bg-3-dark,
+.bg-3-dark > *:not([class*="bg-"]){
+	background-color:#003257;
+	border-color:#003257;
+}
+.bg-4-dark,
+.bg-4-dark > *:not([class*="bg-"]){
+	background-color:#035f7f;
+	border-color:#035f7f;	
+}
+.bg-9-dark,
+.bg-9-dark > *:not([class*="bg-"]){
+	background-color:#c76f0a;
+	border-color:#c76f0a;	
+}
+.bg-5,
+.bg-5 > *:not([class*="bg-"]){
+	background-color: #d77074;
+	border-color: #d77074;
+}
+.bg-6,
+.bg-6 > *:not([class*="bg-"]){
+	/*background-color:#006666;
+	border-color:#006666;	*/
+	background-color: #d5a5d3;
+	border-color: #d5a5d3;
+}
+
+.bg-7,
+.bg-7 > *:not([class*="bg-"]){
+	background-color: #18314c;
+	border-color: #18314c;
+}
+.bg-8,
+.bg-8 > *:not([class*="bg-"]){
+	background-color: #43370d;
+	border-color: #43370d;
+}
+.bg-9,
+.bg-9 > *:not([class*="bg-"]){
+	background-color:#f28706;
+	border-color:#f28706;	
+}
+
+/* Color by Name for Complex Buttons */
+
+.bg-red-1,
+.bg-red-1 > *:not([class*="bg-"]){
+	background-color:#ff0000; 
+    border-color:#ff0000;
+}
+	
+.bg-red-2,
+.bg-red-2 > *:not([class*="bg-"]){
+	background-color:#cc0000; 
+    border-color:#cc0000;
+}
+
+.bg-red-3,
+.bg-red-3 > *:not([class*="bg-"]){
+	background-color:#990000; 
+    border-color:#990000;
+}
+
+.bg-grey-1,
+.bg-grey-1 > *:not([class*="bg-"]){
+	background-color:#eeeeee; 
+    border-color:#eeeeee;
+}
+	
+.bg-grey-2,
+.bg-grey-2 > *:not([class*="bg-"]){
+	background-color:#cccccc; 
+    border-color:#cccccc;
+}
+
+.bg-grey-3,
+.bg-grey-3 > *:not([class*="bg-"]){
+	background-color:#666666; 
+    border-color:#666666;
+}
+
+.bg-white,
+.bg-white > *:not([class*="bg-"]){
+	background-color:#ffffff; 
+	border-color:#ffffff;
+}
+
+.bg-black,
+.bg-black > *:not([class*="bg-"]){
+	background-color:#000000; 
+	border-color:#000000;
+}
+
+/* Colors for status */
+
+.status-good-1 {background-color:#4ede8c; border-color: #4ede8c;}
+.status-good-2 {background-color:#00cc99; border-color: #00cc99;}
+.status-good-3 {background-color:#34995f; border-color: #34995f;}
+.status-good-4 {background-color:#267347; border-color: #267347;}
+
+
+/* Colors for Text */
+
+.text-blue-1{color:#99ccff;}
+.text-blue-2{color:#3399cc;}
+.text-blue-3{color:#006699; }
+.text-blue-4{color:#003366;} 
+
+.text-green-1{color:#ccddbb;}
+.text-green-2{color:#00cc99;}
+.text-green-3{color:#009999;}
+.text-green-4{color:#006666;}
+
+.text-red-1{color:#ff0000;}
+.text-red-2{color:#cc0000;}
+.text-red-3{color:#990000;}
+
+.text-grey-1{color:#eeeeee;}
+.text-grey-2{color:#cccccc;}
+.text-grey-3{color:#aaaaaa;}
+
+.text-white{color:#ffffff;}
+
+
+/* Red Alert */
+.red-alert .bg-1,
+.red-alert .bg-1 > *:not([class*="bg-"]){
+	background-color:#cccccc;
+	border-color:#cccccc;	
+}
+.red-alert .bg-2,
+.red-alert .bg-2 > *:not([class*="bg-"]){
+	background-color:#999999;
+	border-color:#999999;	
+}
+.red-alert .bg-3,
+.red-alert .bg-3 > *:not([class*="bg-"]){
+	background-color:#cc0000;
+	border-color:#cc0000;	
+}
+.red-alert .bg-4,
+.red-alert .bg-4 > *:not([class*="bg-"]){
+	background-color:#660000;
+	border-color:#660000;	
+}
+
+.red-alert .bg-5,
+.red-alert .bg-5 > *:not([class*="bg-"]){
+	background-color:#ffff66;
+	border-color:#ffff66;	
+}
+.red-alert .bg-6,
+.red-alert .bg-6 > *:not([class*="bg-"]){
+	background-color:#ff0000;
+	border-color:#ff0000;	
+}
+.red-alert .bg-7,
+.red-alert .bg-7 > *:not([class*="bg-"]){
+	background-color:#990000;
+	border-color:#990000;
+}
+.red-alert .bg-8,
+.red-alert .bg-8 > *:not([class*="bg-"]){
+	background-color:#330000;
+	border-color:#330000;	
+}
+
+/* Colors for Text */
+
+.red-alert .text-blue-1{color:#ffff66;}
+.red-alert .text-blue-2{color:#ff0000;}
+.red-alert .text-blue-3{color:#990000; }
+.red-alert .text-blue-4{color:#330000;} 
+
+.red-alert .text-green-1{color:#ffffff;}
+.red-alert .text-green-2{color:#999999;}
+.red-alert .text-green-3{color:#cc0000;}
+.red-alert .text-green-4{color:#660000;}
+
+
+/* =============================================================================
+   Active/Hover States. Included for optional use.
+   ==========================================================================*/
+
+.button:hover, 
+.endcap:hover > .cap, 
+.elbow:hover,
+.complexButton:hover > *:not(.text){}
+
+.button:not(.endcap):active, 
+.endcap:active > .cap, 
+.elbow:active,
+.complexButton:active > *:not(.text){-webkit-animation:none !important;animation:none !important; background-color:#ffffff !important; border-color:#ffffff !important;}
+
