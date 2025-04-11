@@ -15,7 +15,8 @@ function getUrl(page) {
 			break;
 	}
 	
-	return server + url;
+    //return server + url;
+    return "about:blank";
 }
 
 var uiBorder = ['bg-1'];
