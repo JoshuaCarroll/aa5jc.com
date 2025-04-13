@@ -1,7 +1,4 @@
 var server = "https://local.aa5jc.com";
-if (window.location.hostname != "aa5jc.com") {
-	server = "";
-}
 
 function getUrl(page) {
 	var url = "";
