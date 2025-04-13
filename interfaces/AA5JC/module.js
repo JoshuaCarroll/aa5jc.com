@@ -16,7 +16,7 @@ function getUrl(page) {
 	}
 	
     //return server + url;
-    return "about:blank";
+    return "interfaces/AA5JC/nodes.html";
 }
 
 var uiBorder = ['bg-1'];
