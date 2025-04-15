@@ -225,7 +225,6 @@ function buildNemesisUi() {
                                         makeButton("Blog","https://joshwebdev.blogspot.com/"),
                                         makeButton("Instagram","https://www.instagram.com/j0s.h/"),
                                         makeButton("Personal YouTube","https://www.youtube.com/channel/UCzIgyTBQ0267ANPd1y6B4ig"),
-                                        makeButton("PA Live","https://www.youtube.com/palive"),
                                         makeButton("QRZ","https://qrz.com/db/aa5jc"),
                                         makeButton("",""),
                                 ]},
