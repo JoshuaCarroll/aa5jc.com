@@ -1,0 +1,92 @@
+@import url('https://fonts.googleapis.com/css2?family=Monomaniac+One&display=swap');
+
+#skywarn {
+	margin-left: 100px;
+}
+
+div.blinkyContainer {
+	height: 24px !important;
+	display: none;
+}
+
+#table_499601 {
+	width: 100%;
+	font-size: 16px;
+	text-align: center;
+}
+
+#table_499601 td, #table_499601 th {
+	padding: 2px;
+}
+
+#table_499601 tr td:nth-of-type(1) { width: 50px;  } 
+#table_499601 tr td:nth-of-type(2) { text-align: left; }
+#table_499601 tr td:nth-of-type(3) { width: 70px; }
+#table_499601 tr td:nth-of-type(4) { width: 80px; text-transform: capitalize; }
+#table_499601 tr td:nth-of-type(5) { width: 60px; text-transform: capitalize; }
+#table_499601 tr td:nth-of-type(6) { width: 70px; }
+#table_499601 tr td:nth-of-type(7) { width: 70px; }
+
+.longRangeNodeHeader {
+	margin: 5px;
+	text-decoration: underline;
+}
+.longRangeNode {
+	width: auto;
+	white-space: nowrap;
+	text-align: left;
+	float: left;
+	margin-left: 10px;
+	border: 1px solid #000;
+	padding: 2px;
+	padding-left: 6px;
+	padding-right: 6px;
+
+}
+
+#log {
+	font-family: 'Monomaniac One', sans-serif;
+        background-color: #000000;
+        color: #aaaaaa;
+        font-size: 16px;
+}
+
+#log span.special {
+	color: orange;
+}
+
+@media screen and (max-width: 900px) {
+        * {
+                cursor: none !important;
+        }
+
+	body {
+		overflow: hidden;
+	}
+
+	#log {
+		font-size: 7px;
+	}
+
+	#table_499601 {
+		width: 100%;
+		font-size: 11px !important;
+	}
+
+	#table_499601 th {
+		text-transform: uppercase;
+		font-weight: bold;
+	}
+
+	#table_499601 tr td {
+		font-weight: normal;
+	}
+
+	#table_499601 tr td:nth-of-type(1) { width: 40px;  } 
+	#table_499601 tr td:nth-of-type(2) {  }
+	#table_499601 tr td:nth-of-type(3) { width: 48px;  }
+	#table_499601 tr td:nth-of-type(4) { width: 56px;  }
+	#table_499601 tr td:nth-of-type(5) { width: 41px;  }
+	#table_499601 tr td:nth-of-type(6) { width: 50px;  }
+	#table_499601 tr td:nth-of-type(7) { width: 30px;  }	
+}
