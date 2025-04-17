@@ -8,7 +8,7 @@ function getUrl(page) {
 			url = "/stats.php";
 			break;
 		case "main":
-			url = "/allmon2/link.php?nodes=499601";
+			url = "/local/link.php?nodes=499601";
 			break;
 	}
 	
@@ -295,7 +295,7 @@ function buildNemesisUi() {
                                 //Left Columns & Elbow
                                 {type:'wrapper', version:'column', flex:'v', children:[
                                         {type:'elbow', version:'top-left', color:LCARS.colorGen(uiBorder), class:'step-two'},
-                                        {type:'button', id:'btn00', color:LCARS.colorGen(uiColorsDark), label:'Allstar Hub', href:'javascript:setContent("'+ server + '/allmon2/link.php?nodes=499601", "btn00")'},
+                                        {type:'button', id:'btn00', color:LCARS.colorGen(uiColorsDark), label:'Allstar Hub', href:'javascript:setContent("'+ server + '/local/link.php?nodes=499601", "btn00")'},
                                         {type:'button', id:'btn01', color:LCARS.colorGen(uiColorsDark), label:'Listen live', href:'javascript:setContent("https://www.broadcastify.com/webPlayer/5419", "btn01")'},
                                         {type:'button', id:'btn05', color:LCARS.colorGen(uiColorsDark), label:'Radar', href:'javascript:setContent("https://radar.weather.gov/?settings=v1_eyJhZ2VuZGEiOnsiaWQiOiJuYXRpb25hbCIsImNlbnRlciI6Wy05Mi4wOTUsMzQuNjU4XSwibG9jYXRpb24iOm51bGwsInpvb20iOjcuNjgyNTI2NzY1NDYxMjI3LCJsYXllciI6ImJyZWZfcWNkIn0sImFuaW1hdGluZyI6ZmFsc2UsImJhc2UiOiJkYXJrY2FudmFzIiwiYXJ0Y2MiOmZhbHNlLCJjb3VudHkiOnRydWUsImN3YSI6ZmFsc2UsInJmYyI6ZmFsc2UsInN0YXRlIjpmYWxzZSwibWVudSI6dHJ1ZSwic2hvcnRGdXNlZE9ubHkiOnRydWUsIm9wYWNpdHkiOnsiYWxlcnRzIjowLjgsImxvY2FsIjowLjYsImxvY2FsU3RhdGlvbnMiOjAuOCwibmF0aW9uYWwiOjAuNn19", "btn05")'},
                                         {type:'button', color:LCARS.colorGen(uiBorder), flexC:'v'},
