@@ -43,7 +43,7 @@ if (is_readable($astdbFile)) {
 // -----------------------------------------------------------------------------
 // 3. Load allmon INI for node metadata
 // -----------------------------------------------------------------------------
-$configFile = '/var/www/html/allmon2/allmon.ini.php';
+$configFile = '/var/www/html/allmon.ini';
 if (!is_readable($configFile)) {
     die('allmon.ini not found or not readable');
 }

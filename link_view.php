@@ -10,9 +10,10 @@
     <link rel="stylesheet" href="jquery-ui.css">
     <link rel="stylesheet" href="link_map.css">
 
-    <!-- Libraries -->
+    <!-- Libs -->
     <script src="jquery-3.3.1.min.js"></script>
     <script src="jquery-ui.min.js"></script>
+    <script src="link_map.js"></script>
 
     <style>
         /* Move legacy inline styles here if desired */
@@ -35,7 +36,7 @@
             <tr><th>Node</th><th>Node&nbsp;Info</th><th>Link</th><th>Direction</th><th>Connected</th><th>Mode</th></tr>
         </thead>
         <tbody>
-            <tr><td colspan="6">Waiting</td></tr>
+            <tr><td colspan="6">Waiting…</td></tr>
         </tbody>
     </table>
 

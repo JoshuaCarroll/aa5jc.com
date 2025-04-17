@@ -97,7 +97,7 @@
 
         // Polling example (replace URL with real endpoint)
         function pollStatus() {
-            $.getJSON('/allmon2/server.php', { nodes: NODES.join(',') }, function (data) {
+            $.getJSON('status.php', { nodes: NODES.join(',') }, function (data) {
                 // Update the UI table with data.rows
                 // TODO: implement rendering logic
             }).always(function () {
