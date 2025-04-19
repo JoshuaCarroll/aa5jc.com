@@ -1,11 +1,11 @@
 <?php
-# server.php
 
 header('Content-Type: text/event-stream');
 header('Cache-Control: no-cache');
 header('X-Accel-Buffering: no');
 date_default_timezone_set('America/Chicago');
-include('allmon.inc.php');
+
+include('asteriskHelper.php');
 
 // Sanity check: correct request?
 if (empty($_GET['nodes'])) {
@@ -19,27 +19,6 @@ if (empty($_GET['nodes'])) {
 // Read parameters passed to us
 $passedNodes = explode(',', @trim(strip_tags($_GET['nodes'])));
 
-// Get Allstar database file
-$db = "/var/log/asterisk/astdb.txt";
-$astdb = array();
-if (file_exists($db)) {
-    $fh = fopen($db, "r");
-    if (flock($fh, LOCK_SH)) {
-        while (($line = fgets($fh)) !== false) {
-            $arr = preg_split("/\|/", trim($line));
-            $astdb[$arr[0]] = $arr;
-        }
-    }
-    flock($fh, LOCK_UN);
-    fclose($fh);
-}
-
-// Read allmon INI file
-if (!file_exists('allmon.ini.php')) {
-    die("Couldn't load ini file.\n");
-}
-$config = parse_ini_file('allmon.ini.php', true);
-
 // Sanity check: Must only have nodes in our ini file
 $nodes = array();
 
@@ -47,9 +26,9 @@ foreach ($passedNodes as $i => $node) {
     if (isset($config[$node])) {
         $nodes[] = $node;
     } else {
-        $data = array('node' => $node, 'status' => "Node $node is not in allmon ini file");
+        $data = array('node' => $node, 'status' => "Node $node is not configured in the ini file.");
         echo "event: nodes\n";
-        echo 'data: '.json_encode($data)."\n\n";
+        echo 'data: ' . json_encode($data) . "\n\n";
         ob_flush();
         flush();
     }
@@ -70,7 +49,7 @@ foreach ($nodes as $node) {
         ob_flush();
         flush();
 
-        $fp[$host] = AMIconnect($config[$node]['host']);
+        $fp[$host] = Allstar::Connect($config[$node]['host']);
         if ($fp[$host] === false) {
             $data = array('host' => $host, 'node' => $node, 'status' => 'Could not connect to Asterisk Manager.');
             echo "event: connection\n";
@@ -79,7 +58,7 @@ foreach ($nodes as $node) {
             flush();
         } else {
             // try to login
-            if (false !== AMIlogin($fp[$host], $config[$node]['user'], $config[$node]['passwd'])) {
+            if (false !==  Allstar::Login($fp[$host], $config[$node]['user'], $config[$node]['passwd'])) {
                 $servers[$host] = 'y';
             } else {
                 $data = array('host' => $host, 'node' => $node, 'status' => 'Could not login to Asterisk Manager.');
@@ -104,10 +83,10 @@ while (true) {
     foreach ($nodes as $node) {
         // Is host of this node logged in?
         if (isset($servers[$config[$node]['host']])) {
-            #print "Servers: " . $servers[$config[$node]['host']];
+            // print "Servers: " . $servers[$config[$node]['host']];
         } else {
             continue;
-            #die ("a host is not logged in");
+            // die ("a host is not logged in");
         }
 
         $connectedNodes = getNode($fp[$config[$node]['host']], $node);
@@ -115,7 +94,7 @@ while (true) {
 
         // Build array of time values
         $nodeTime[$node]['node'] = $node;
-        $nodeTime[$node]['info'] = getAstInfo($node);
+        $nodeTime[$node]['info'] = Allstar::GetNodeInfo($node);
 
         // Save remote nodes
         $current[$node]['remote_nodes'] = array();
@@ -170,7 +149,7 @@ function getNode($fp, $node)
     $actionID = 'xstat'.$actionRand;
     if ((fwrite($fp, "ACTION: RptStatus\r\nCOMMAND: XStat\r\nNODE: $node\r\nActionID: $actionID\r\n\r\n")) !== false) {
         // Get RptStatus
-        $rptStatus = get_response($fp, $actionID);
+        $rptStatus = Allstar::GetResponse($fp, $actionID);
     } else {
         $data['status'] = 'XStat() failed!';
         echo 'data: '.json_encode($data)."\n\n";
@@ -183,7 +162,7 @@ function getNode($fp, $node)
     if ((fwrite($fp,
             "ACTION: RptStatus\r\nCOMMAND: SawStat\r\nNODE: $node\r\nActionID: $actionID\r\n\r\n")) !== false) {
         // Get RptStatus
-        $sawStatus = get_response($fp, $actionID);
+        $sawStatus = Allstar::GetResponse($fp, $actionID);
     } else {
         $data['status'] = 'sawStat failed!';
         echo 'data: '.json_encode($data)."\n\n";
@@ -291,7 +270,7 @@ function parseNode($rptStatus, $sawStatus)
         foreach ($conns as $node) {
             $n = $node[0];
             $curNodes[$n]['node'] = $node[0];
-            $curNodes[$n]['info'] = getAstInfo($node[0]);
+            $curNodes[$n]['info'] = Allstar::GetNodeInfo($node[0]);
             $curNodes[$n]['ip'] = $node[1];
             $curNodes[$n]['direction'] = $node[3];
             $curNodes[$n]['elapsed'] = $node[4];
@@ -325,7 +304,7 @@ function parseNode($rptStatus, $sawStatus)
                 $nodeNum=substr($longRangeLinks[$x], 1);
                 if (!isset($curNodes[$nodeNum])) {
                         $arrLongRangeLinks[$nodeNum]['node'] = $nodeNum;
-                        $arrLongRangeLinks[$nodeNum]['info'] = getAstInfo($nodeNum);
+                        $arrLongRangeLinks[$nodeNum]['info'] = Allstar::GetNodeInfo($nodeNum);
                         $arrLongRangeLinks[$nodeNum]['mode'] = substr($longRangeLinks[$x], 0, 1);
                         $arrLongRangeLinks[$nodeNum]['remote'] = "true";
                 }
