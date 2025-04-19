@@ -112,7 +112,7 @@ class Allstar {
       // Build info string
       if (isset($astdb[$nodeNumber])) {
          $dbNode = $astdb[$nodeNumber];
-         $info = $dbNode[1] . ' ' . $dbNode[2] . ' ' . $dbNode[3];
+         $info = $dbNode->Callsign . ' ' . $dbNode->Frequency . ' ' . $dbNode->ServerLocation;
       } elseif ($nodeNumber > 3000000) {
          $info = "Echolink";
       } elseif (!empty($node['ip'])) {
