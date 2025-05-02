@@ -30,6 +30,12 @@ namespace AsteriskAMIStream.Services
 
         public static async Task DownloadAndCacheMetadata()
         {
+            if (File.Exists(CacheFilePath) && File.GetLastWriteTime(CacheFilePath) > DateTime.UtcNow.AddDays(-1))
+            {
+                // Cache is still valid, no need to download
+                return;
+            }
+
             using (var httpClient = new HttpClient())
             {
                 var mapData = await httpClient.GetStringAsync(mapApiUrl);
