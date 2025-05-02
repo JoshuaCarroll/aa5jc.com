@@ -1,49 +1,56 @@
 ﻿using AsteriskAMIStream.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System;
-using System.IO;
-using System.Net.Sockets;
-using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace AsteriskAMIStream.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api")]
     [ApiController]
     public class AsteriskController : Controller
     {
-        private const string AMI_HOST = "10.1.10.207";
-        private const int AMI_PORT = 5038;
-        private const string AMI_USERNAME = "admin";
-        private const string AMI_PASSWORD = "";
+        private static AsteriskClient _client;
+        private readonly AMISettings _amiSettings;
 
-        [HttpGet("stream")]
-        public async Task StreamAMIData()
+        public AsteriskController(IConfiguration configuration)
         {
-            Response.ContentType = "text/event-stream";
-            Response.Headers["Cache-Control"] = "no-cache";
-            Response.Headers["Connection"] = "keep-alive";
+            // Fetch the first AMI server configuration from appsettings.json
+            _amiSettings = configuration.GetSection("AMISettings").Get<List<AMISettings>>().First();
 
-            AsteriskClient client = new AsteriskClient(AMI_HOST, AMI_PORT, AMI_USERNAME, AMI_PASSWORD);
-            await client.ConnectAsync();
-
-            while (!Response.HttpContext.RequestAborted.IsCancellationRequested)
+            // Initialize the AsteriskClient with settings
+            if (_client == null)
             {
-                string message = await client.ReadMessageAsync();
-                if (message != null)
-                {
-                    await WriteToStream(message);
-                }
+                _client = new AsteriskClient(
+                    _amiSettings.Host,
+                    _amiSettings.Port,
+                    _amiSettings.Username,
+                    _amiSettings.Password,
+                    _amiSettings.NodeNumber,
+                    _amiSettings.TimeoutMinutes
+                );
+
+                // Start reading data in the background
+                //Task.Run(() => _client.ConnectAsync());
             }
-            var nodeInfo = await client.GetNodeInfoAsync("499601");
-            await WriteToStream(nodeInfo);
         }
 
-        private async Task WriteToStream(object data)
+        [HttpGet("messages")]
+        public async Task<ActionResult<AsteriskResponse>> GetMessages()
         {
-            string json = System.Text.Json.JsonSerializer.Serialize(data);
-            await Response.WriteAsync($"{json}\n\n");
-            await Response.Body.FlushAsync();
+            await _client.GetNodeInfoAsync(_amiSettings.NodeNumber);
+
+            // Retrieve all messages from the queue
+            var messages = new List<AsteriskResponse>();
+
+            while (_client.MessageQueue.TryDequeue(out AsteriskResponse response))
+            {
+                messages.Add(response); // Add the message to the list
+            }
+
+            // Return all messages as a response
+            return Ok(messages);
         }
     }
 }

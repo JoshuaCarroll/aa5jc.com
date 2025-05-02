@@ -1,4 +1,6 @@
-﻿using System.Collections.Concurrent;
+﻿using AsteriskAMIStream.Models;
+using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
@@ -12,65 +14,49 @@ public class AsteriskClient
     private StreamWriter writer;
     private StreamReader reader;
     private CancellationTokenSource cancellationTokenSource;
-    private ConcurrentQueue<string> messageQueue;
+    private ConcurrentQueue<AsteriskResponse> messageQueue;
     private Task readTask;
+    private DateTime lastMessageTime;
+    private readonly string amiHost;
+    private readonly int amiPort;
+    private readonly string amiUsername;
+    private readonly string amiPassword;
+    private readonly string nodeNumber;
+    private readonly int timeoutMinutes;
+    private int _actionId = 0; // Action ID for the AMI commands
 
-    public string AmiHost = "10.1.10.207";
-    public int AmiPort = 5038;
-    public string AmiUsername = "admin";
-    public string AmiPassword = "";
+    public string ActionID => $"{Interlocked.Increment(ref _actionId)}"; // Thread-safe increment for action ID
 
-    public AsteriskClient(string amiHost, int amiPort, string amiUsername, string amiPassword)
+    public ConcurrentQueue<AsteriskResponse> MessageQueue => messageQueue;  // Public access to the message queue
+
+    public AsteriskClient(string amiHost, int amiPort, string amiUsername, string amiPassword, string nodeNumber, int timeoutMinutes)
     {
-        AmiHost = amiHost;
-        AmiUsername = amiUsername;
-        AmiPassword = amiPassword;
-        AmiPort = amiPort;
+        this.amiHost = amiHost;
+        this.amiPort = amiPort;
+        this.amiUsername = amiUsername;
+        this.amiPassword = amiPassword;
+        this.nodeNumber = nodeNumber;
+        this.timeoutMinutes = timeoutMinutes;
 
         tcpClient = new TcpClient();
-        messageQueue = new ConcurrentQueue<string>();
+        messageQueue = new ConcurrentQueue<AsteriskResponse>();
         cancellationTokenSource = new CancellationTokenSource();
 
-        ConnectAsync().Wait();
+        lastMessageTime = DateTime.UtcNow; // Initialize last message time
     }
 
-    private async Task<string> SendAsync(string command)
+    private async Task SendAsync(string command)
     {
         if (!tcpClient.Connected)
         {
             await ConnectAsync();
         }
 
+        WriteCommand(command); // Log the command to console
         await writer.WriteLineAsync(command);
 
-        string response = await RecieveAsync(cancellationTokenSource.Token);
-
-        return response;
-    }
-
-    private async Task<string> RecieveAsync(CancellationToken cancellationToken)
-    {
-        StringBuilder response = new StringBuilder();
-
-        while (!cancellationToken.IsCancellationRequested)
-        {
-            if (messageQueue.TryDequeue(out string line))
-            {
-                // If the line is null or empty, consider it as the end of the response
-                if (string.IsNullOrWhiteSpace(line))
-                {
-                    break;
-                }
-
-                response.AppendLine(line);
-            }
-            else
-            {
-                await Task.Delay(100);  // Allow some delay to prevent tight looping
-            }
-        }
-
-        return response.ToString();
+        // Read response 
+        await ReadStreamAsync(cancellationTokenSource.Token);
     }
 
     public async Task ConnectAsync()
@@ -80,50 +66,73 @@ public class AsteriskClient
             return;
         }
 
-        await tcpClient.ConnectAsync(AmiHost, AmiPort);
+        Console.WriteLine($"Connecting to AMI server at {amiHost}:{amiPort}...");
+        await tcpClient.ConnectAsync(amiHost, amiPort);
+
+        if (!tcpClient.Connected)
+        {
+            Console.WriteLine("** Unable to connect to the AMI server.");
+            return;
+        }
 
         stream = tcpClient.GetStream();
         writer = new StreamWriter(stream, Encoding.ASCII) { AutoFlush = true };
         reader = new StreamReader(stream, Encoding.ASCII);
 
-        // Start reading data asynchronously
-        readTask = Task.Run(() => ReadStreamAsync(cancellationTokenSource.Token));
+        // Send login command
+        await SendAsync($"ACTION: LOGIN\r\nUSERNAME: {amiUsername}\r\nSECRET: {amiPassword}\r\nEVENTS: 0\r\nActionID: {ActionID}\r\n");
     }
 
     private async Task ReadStreamAsync(CancellationToken cancellationToken)
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            // Read a line asynchronously
             var line = await reader.ReadLineAsync();
 
             if (line == null)
             {
-                break;  // End of stream, exit the loop
+                break; // End of stream
             }
 
-            // Enqueue the received line for processing by the main task
-            messageQueue.Enqueue(line);
+            var message = "";
+            while (line != string.Empty)
+            {
+                message += line + "\r\n";
+                line = await reader.ReadLineAsync();
+            }
+            WriteResponse(message); // Log the response to console
+
+            AsteriskResponse response = new AsteriskResponse(message);
+
+            // If the queue is full, remove the oldest message
+            if (messageQueue.Count >= 100) // Fixed limit
+            {
+                messageQueue.TryDequeue(out _);
+            }
+
+            messageQueue.Enqueue(response); // Enqueue the new message
+
+            break; // Exit after processing one message
         }
     }
 
-    public async Task<string> GetNodeInfoAsync(string nodeNumber)
+    public async Task GetNodeInfoAsync(string nodeNumber)
     {
-        string response = await SendAsync($"ACTION: RptStatus\r\nCOMMAND: XStat\r\nNODE: {nodeNumber}\r\n\r\n");
-        response += await SendAsync($"ACTION: RptStatus\r\nCOMMAND: SawStat\r\nNODE: {nodeNumber}\r\n\r\n");
-
-        return response;
+        await SendAsync($"ACTION: RptStatus\r\nCOMMAND: XStat\r\nNODE: {nodeNumber}\r\n");
+        await SendAsync($"ACTION: RptStatus\r\nCOMMAND: SawStat\r\nNODE: {nodeNumber}\r\n");
     }
 
-    public void Stop()
+    private void WriteCommand(string command)
     {
-        cancellationTokenSource.Cancel();
-        readTask?.Wait();  // Wait for the read task to finish before closing the connection
-        tcpClient.Close();
+        Console.ForegroundColor = ConsoleColor.Gray;
+        Console.WriteLine(command);
+        Console.ForegroundColor = ConsoleColor.Green;
     }
 
-    internal async Task<string> ReadMessageAsync()
+    private void WriteResponse(string response)
     {
-        throw new NotImplementedException();
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.WriteLine(response);
+        Console.ForegroundColor = ConsoleColor.Green;
     }
 }
