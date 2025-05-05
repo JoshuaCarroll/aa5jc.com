@@ -32,9 +32,11 @@ namespace AsteriskAMIStream.Services
         {
             if (File.Exists(CacheFilePath) && File.GetLastWriteTime(CacheFilePath) > DateTime.UtcNow.AddDays(-1))
             {
-                // Cache is still valid, no need to download
+                WriteConsole("Node map data cache is still valid, no need to download");
                 return;
             }
+
+            WriteConsole("Cache is old or missing. Attempting to download...");
 
             using (var httpClient = new HttpClient())
             {
@@ -91,6 +93,13 @@ namespace AsteriskAMIStream.Services
         public static NodeMetadata GetNodeMetadata(string nodeNumber)
         {
             return nodesMetadata.FirstOrDefault(node => node.NodeNumber == nodeNumber);
+        }
+
+        private static void WriteConsole(string text)
+        {
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine(text);
+            Console.ForegroundColor = ConsoleColor.Green;
         }
     }
 }

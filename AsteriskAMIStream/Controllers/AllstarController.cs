@@ -9,12 +9,12 @@ namespace AsteriskAMIStream.Controllers
 {
     [Route("api")]
     [ApiController]
-    public class AsteriskController : Controller
+    public class AllstarController : Controller
     {
-        private static AsteriskClient _client;
+        private static AllstarClient _client;
         private readonly AMISettings _amiSettings;
 
-        public AsteriskController(IConfiguration configuration)
+        public AllstarController(IConfiguration configuration)
         {
             // Fetch the first AMI server configuration from appsettings.json
             _amiSettings = configuration.GetSection("AMISettings").Get<List<AMISettings>>().First();
@@ -22,7 +22,7 @@ namespace AsteriskAMIStream.Controllers
             // Initialize the AsteriskClient with settings
             if (_client == null)
             {
-                _client = new AsteriskClient(
+                _client = new AllstarClient(
                     _amiSettings.Host,
                     _amiSettings.Port,
                     _amiSettings.Username,
@@ -30,27 +30,17 @@ namespace AsteriskAMIStream.Controllers
                     _amiSettings.NodeNumber,
                     _amiSettings.TimeoutMinutes
                 );
-
-                // Start reading data in the background
-                //Task.Run(() => _client.ConnectAsync());
             }
         }
 
         [HttpGet("messages")]
-        public async Task<ActionResult<AsteriskResponse>> GetMessages()
+        public async Task<ActionResult<List<AllstarConnection>>> GetMessages()
         {
             await _client.GetNodeInfoAsync(_amiSettings.NodeNumber);
-
-            // Retrieve all messages from the queue
-            var messages = new List<AsteriskResponse>();
-
-            while (_client.MessageQueue.TryDequeue(out AsteriskResponse response))
-            {
-                messages.Add(response); // Add the message to the list
-            }
+            _client.ClearExpiredConnections(new TimeSpan(0, 1, 0));
 
             // Return all messages as a response
-            return Ok(messages);
+            return Ok(_client.AllstarConnections);
         }
     }
 }
