@@ -14,52 +14,55 @@ using System.Xml.Linq;
 public class AllstarClient
 {
     private TcpClient tcpClient;
-    private NetworkStream stream;
-    private StreamWriter writer;
-    private StreamReader reader;
+    private NetworkStream? stream;
+    private StreamWriter? writer;
+    private StreamReader? reader;
     private CancellationTokenSource cancellationTokenSource;
-    private Task readTask;
-    private DateTime lastMessageTime;
     private readonly string amiHost;
     private readonly int amiPort;
     private readonly string amiUsername;
     private readonly string amiPassword;
     private readonly string nodeNumber;
-    private readonly int timeoutMinutes;
     private int _actionId = 0; // Action ID for the AMI commands
 
     public List<AllstarConnection> AllstarConnections { get; set; }
 
     public string ActionID => $"{Interlocked.Increment(ref _actionId)}"; // Thread-safe increment for action ID
 
-    public AllstarClient(string amiHost, int amiPort, string amiUsername, string amiPassword, string nodeNumber, int timeoutMinutes)
+    public AllstarClient(string amiHost, int amiPort, string amiUsername, string amiPassword, string nodeNumber)
     {
         this.amiHost = amiHost;
         this.amiPort = amiPort;
         this.amiUsername = amiUsername;
         this.amiPassword = amiPassword;
         this.nodeNumber = nodeNumber;
-        this.timeoutMinutes = timeoutMinutes;
 
         tcpClient = new TcpClient();
+
         AllstarConnections = new List<AllstarConnection>();
         cancellationTokenSource = new CancellationTokenSource();
-
-        lastMessageTime = DateTime.UtcNow; // Initialize last message time
     }
 
     private async Task SendAsync(string command)
     {
-        if (!tcpClient.Connected)
+        // Check if the TCP client is connected
+        if (tcpClient == null || !tcpClient.Connected)
         {
+            WriteCommand("** TCP client is not connected. Attempting to connect...");
             await ConnectAsync();
+        }
+        else
+        {
+            WriteCommand("** TCP client is connected.");
         }
 
         WriteCommand(command); // Log the command to console
         await writer.WriteLineAsync(command);
+        WriteCommand("** Command sent to AMI server.");
 
         // Read response 
         await ReadStreamAsync(cancellationTokenSource.Token);
+        WriteCommand("** Response read from AMI server.");
     }
 
     public async Task ConnectAsync()
@@ -69,13 +72,17 @@ public class AllstarClient
             return;
         }
 
-        Console.WriteLine($"Connecting to AMI server at {amiHost}:{amiPort}...");
+        WriteCommand($"Connecting to AMI server at {amiHost}:{amiPort}...");
         await tcpClient.ConnectAsync(amiHost, amiPort);
 
         if (!tcpClient.Connected)
         {
-            Console.WriteLine("** Unable to connect to the AMI server.");
+            WriteCommand("** Unable to connect to the AMI server.");
             return;
+        }
+        else
+        {
+            WriteCommand($"Connected to AMI server at {amiHost}:{amiPort}.");
         }
 
         stream = tcpClient.GetStream();
@@ -90,19 +97,29 @@ public class AllstarClient
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            var line = await reader.ReadLineAsync();
+            WriteCommand("** Reading response from AMI server...");
 
-            if (line == null)
+            var line = reader.ReadLine();
+
+            WriteCommand("** Read a line from AMI server.");
+
+            if (line == null || line.Trim() == "Asterisk Call Manager/1.0")
             {
+                WriteCommand("** Line is null or 'Asterisk Call Manager/1.0'.. break;");
                 break; // End of stream
             }
 
+            WriteCommand("** Line is not null or 'Asterisk Call Manager/1.0'.. continue;");
+
             var message = "";
-            while (line != string.Empty)
+            while (line != null && line != string.Empty)
             {
+                WriteCommand($"**   Line: {line}");
                 message += line + "\r\n";
-                line = await reader.ReadLineAsync();
+                line = reader.ReadLine();
             }
+            WriteCommand($"**   Message: {message}"); // Log the message to console
+
             WriteResponse(message); // Log the response to console
 
             ParseResponse(message);
@@ -114,6 +131,8 @@ public class AllstarClient
     public async Task GetNodeInfoAsync(string nodeNumber)
     {
         await SendAsync($"ACTION: RptStatus\r\nCOMMAND: XStat\r\nNODE: {nodeNumber}\r\n");
+        
+        /// TODO: Do I even need this anymore?
         //await SendAsync($"ACTION: RptStatus\r\nCOMMAND: SawStat\r\nNODE: {nodeNumber}\r\n");
     }
 
@@ -133,6 +152,8 @@ public class AllstarClient
 
     private void ParseResponse(string rawMessage)
     {
+        WriteCommand($"** Parsing response: {rawMessage}");
+
         // Parse the raw message into a structured format if needed
         if (string.IsNullOrEmpty(rawMessage))
         {

@@ -24,7 +24,7 @@ namespace AsteriskAMIStream.Services
     public static class MetadataService
     {
         private const string mapApiUrl = "https://stats.allstarlink.org/api/stats/mapData";
-        private const string CacheFilePath = "nodeMetadata.json";
+        private const string CacheFilePath = "/app/data/nodeMetadata.json";
 
         private static List<NodeMetadata> nodesMetadata = new List<NodeMetadata>();
 

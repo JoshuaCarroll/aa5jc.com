@@ -11,13 +11,20 @@ namespace AsteriskAMIStream.Controllers
     [ApiController]
     public class AllstarController : Controller
     {
-        private static AllstarClient _client;
+        private static AllstarClient? _client;
         private readonly AMISettings _amiSettings;
 
         public AllstarController(IConfiguration configuration)
         {
             // Fetch the first AMI server configuration from appsettings.json
-            _amiSettings = configuration.GetSection("AMISettings").Get<List<AMISettings>>().First();
+            var amiSettingsList = configuration.GetSection("AMISettings").Get<List<AMISettings>>();
+
+            if (amiSettingsList == null || !amiSettingsList.Any())
+            {
+                throw new InvalidOperationException("AMISettings configuration is missing or empty.");
+            }
+
+            _amiSettings = amiSettingsList.First();
 
             // Initialize the AsteriskClient with settings
             if (_client == null)
@@ -27,16 +34,17 @@ namespace AsteriskAMIStream.Controllers
                     _amiSettings.Port,
                     _amiSettings.Username,
                     _amiSettings.Password,
-                    _amiSettings.NodeNumber,
-                    _amiSettings.TimeoutMinutes
+                    _amiSettings.NodeNumber
                 );
             }
         }
 
-        [HttpGet("messages")]
-        public async Task<ActionResult<List<AllstarConnection>>> GetMessages()
+        [HttpGet("nodes")]
+        public async Task<ActionResult<List<AllstarConnection>>> GetNodes()
         {
-            await _client.GetNodeInfoAsync(_amiSettings.NodeNumber);
+            await _client!.GetNodeInfoAsync(_amiSettings.NodeNumber);
+
+            // Remove any connections that are older than 1 minute
             _client.ClearExpiredConnections(new TimeSpan(0, 1, 0));
 
             // Return all messages as a response
