@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddMvc();
 builder.Services.AddControllers();  // Ensure controllers are added before building the app
 
 // Load configuration from appsettings.json or prompt user if not found or invalid

@@ -40,7 +40,7 @@ namespace AsteriskAMIStream.Controllers
             }
         }
 
-        [HttpGet("nodes")]
+        [HttpGet("")]
         public async Task<ActionResult<List<AllstarConnection>>> GetNodes()
         {
             await _client!.GetNodeInfoAsync(_amiSettings.NodeNumber);
