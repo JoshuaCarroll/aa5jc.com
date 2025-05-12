@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AsteriskAMIStream.Controllers
@@ -45,7 +46,7 @@ namespace AsteriskAMIStream.Controllers
             await _client!.GetNodeInfoAsync(_amiSettings.NodeNumber);
 
             // Remove any connections that are older than 1 minute
-            _client.ClearExpiredConnections(new TimeSpan(0, 1, 0));
+            _client.ClearExpiredConnections(TimeSpan.FromMinutes(1));
 
             // Return all messages as a response
             return Ok(_client.AllstarConnections);

@@ -23,6 +23,9 @@ public class AllstarClient
     private readonly string amiUsername;
     private readonly string amiPassword;
     private readonly string nodeNumber;
+    private Task? readerTask;
+    private BlockingCollection<string> responseQueue = new(); // Optional: use ConcurrentQueue if preferred
+    private readonly SemaphoreSlim _streamLock = new(1, 1);
     private int _actionId = 0; // Action ID for the AMI commands
 
     public List<AllstarConnection> AllstarConnections { get; set; }
@@ -43,117 +46,132 @@ public class AllstarClient
         cancellationTokenSource = new CancellationTokenSource();
     }
 
-    private async Task SendAsync(string command)
-    {
-        // Check if the TCP client is connected
-        if (tcpClient == null || !tcpClient.Connected)
-        {
-            WriteCommand("** TCP client is not connected. Attempting to connect...");
-            await ConnectAsync();
-        }
-        else
-        {
-            WriteCommand("** TCP client is connected.");
-        }
-
-        WriteCommand(command); // Log the command to console
-        await writer.WriteLineAsync(command);
-        WriteCommand("** Command sent to AMI server.");
-
-        // Read response 
-        await ReadStreamAsync(cancellationTokenSource.Token);
-        WriteCommand("** Response read from AMI server.");
-    }
-
     public async Task ConnectAsync()
     {
         if (tcpClient.Connected)
-        {
             return;
-        }
 
-        WriteCommand($"Connecting to AMI server at {amiHost}:{amiPort}...");
+        ConsoleHelper.Write($"Connecting to AMI server at {amiHost}:{amiPort}", "", ConsoleColor.DarkYellow);
         await tcpClient.ConnectAsync(amiHost, amiPort);
 
         if (!tcpClient.Connected)
         {
-            WriteCommand("** Unable to connect to the AMI server.");
+            ConsoleHelper.Write("** Unable to connect to the AMI server.", "", ConsoleColor.Red);
             return;
         }
-        else
-        {
-            WriteCommand($"Connected to AMI server at {amiHost}:{amiPort}.");
-        }
+
+        ConsoleHelper.Write($"Connected to AMI server at {amiHost}:{amiPort}.", "", ConsoleColor.DarkYellow);
 
         stream = tcpClient.GetStream();
         writer = new StreamWriter(stream, Encoding.ASCII) { AutoFlush = true };
         reader = new StreamReader(stream, Encoding.ASCII);
 
-        // Send login command
-        await SendAsync($"ACTION: LOGIN\r\nUSERNAME: {amiUsername}\r\nSECRET: {amiPassword}\r\nEVENTS: 0\r\nActionID: {ActionID}\r\n");
+        // Write the login manually instead of using SendAsync()
+        var loginCommand =
+            $"ACTION: LOGIN\r\n" +
+            $"USERNAME: {amiUsername}\r\n" +
+            $"SECRET: {amiPassword}\r\n" +
+            $"EVENTS: ON\r\n" +
+            $"ActionID: {ActionID}\r\n\r\n"; // <- Note the double newline!
+
+
+        ConsoleHelper.Write(loginCommand, ">> ", ConsoleColor.Blue);
+
+        await writer.WriteLineAsync(loginCommand);
+        await writer.FlushAsync();  // <-- critical flush
+
+        ConsoleHelper.Write("** Login command sent to AMI server.", "", ConsoleColor.DarkYellow);
+
+        // Start reader loop after successful login
+        readerTask = Task.Run(() => ReaderLoopAsync(cancellationTokenSource.Token));
+
     }
 
-    private async Task ReadStreamAsync(CancellationToken cancellationToken)
+    private async Task SendAsync(string command)
     {
-        while (!cancellationToken.IsCancellationRequested)
+        await _streamLock.WaitAsync();
+
+        try
         {
-            WriteCommand("** Reading response from AMI server...");
-
-            var line = reader.ReadLine();
-
-            WriteCommand("** Read a line from AMI server.");
-
-            if (line == null || line.Trim() == "Asterisk Call Manager/1.0")
+            if (tcpClient == null || !tcpClient.Connected)
             {
-                WriteCommand("** Line is null or 'Asterisk Call Manager/1.0'.. break;");
-                break; // End of stream
+                ConsoleHelper.Write("", "** TCP client is not connected. Attempting to connect...", ConsoleColor.DarkYellow);
+                await ConnectAsync();
             }
 
-            WriteCommand("** Line is not null or 'Asterisk Call Manager/1.0'.. continue;");
+            ConsoleHelper.Write(command, ">> ", ConsoleColor.Blue, ConsoleColor.Black);
 
-            var message = "";
-            while (line != null && line != string.Empty)
+            await writer!.WriteLineAsync("\r\n" + command);
+            await writer.FlushAsync();
+        }
+        finally
+        {
+            _streamLock.Release();
+        }
+    }
+
+    private async Task ReaderLoopAsync(CancellationToken cancellationToken)
+    {
+        if (reader == null)
+        {
+            ConsoleHelper.Write("** StreamReader is null. Cannot start reading responses.", "", ConsoleColor.Red);
+            return;
+        }
+
+        try
+        {
+            StringBuilder messageBuilder = new();
+            while (!cancellationToken.IsCancellationRequested)
             {
-                WriteCommand($"**   Line: {line}");
-                message += line + "\r\n";
-                line = reader.ReadLine();
+                string? line = await reader.ReadLineAsync();
+
+                if (line == null)
+                {
+                    ConsoleHelper.Write("** Stream closed by server.", "", ConsoleColor.Red);
+                    break;
+                }
+                else if (line == string.Empty)
+                {
+                    ConsoleHelper.Write("<<<<<<<<<<<<", "", ConsoleColor.Green);
+
+                    // Message boundary (blank line)
+                    string fullMessage = messageBuilder.ToString();
+                    messageBuilder.Clear();
+
+                    // Optionally queue or dispatch the message
+                    responseQueue.Add(fullMessage);
+
+                    ParseResponse(fullMessage); // Or fire an event handler
+                }
+                else
+                {
+                    ConsoleHelper.Write(line, "<< ", ConsoleColor.Green);
+                    messageBuilder.AppendLine(line);
+                }
             }
-            WriteCommand($"**   Message: {message}"); // Log the message to console
-
-            WriteResponse(message); // Log the response to console
-
-            ParseResponse(message);
-
-            break; // Exit after processing one message
+        }
+        catch (Exception ex)
+        {
+            ConsoleHelper.Write($"** Reader loop exception: {ex.GetType().Name}: {ex.Message}", "", ConsoleColor.Red);
         }
     }
 
     public async Task GetNodeInfoAsync(string nodeNumber)
     {
-        await SendAsync($"ACTION: RptStatus\r\nCOMMAND: XStat\r\nNODE: {nodeNumber}\r\n");
+        var rptCommand =
+            $"ACTION: RptStatus\r\n" +
+            $"COMMAND: XStat\r\n" +
+            $"NODE: {nodeNumber}\r\n" + 
+            $"ActionID: {ActionID}\r\n\r\n";
+
+        await SendAsync(rptCommand);
         
         /// TODO: Do I even need this anymore?
         //await SendAsync($"ACTION: RptStatus\r\nCOMMAND: SawStat\r\nNODE: {nodeNumber}\r\n");
     }
 
-    private void WriteCommand(string command)
-    {
-        Console.ForegroundColor = ConsoleColor.Gray;
-        Console.WriteLine(command);
-        Console.ForegroundColor = ConsoleColor.Green;
-    }
-
-    private void WriteResponse(string response)
-    {
-        Console.ForegroundColor = ConsoleColor.White;
-        Console.WriteLine(response);
-        Console.ForegroundColor = ConsoleColor.Green;
-    }
-
     private void ParseResponse(string rawMessage)
     {
-        WriteCommand($"** Parsing response: {rawMessage}");
-
         // Parse the raw message into a structured format if needed
         if (string.IsNullOrEmpty(rawMessage))
         {
@@ -212,8 +230,7 @@ public class AllstarClient
                     }
                     catch (Exception)
                     {
-                        Console.WriteLine("** Error parsing connection data:");
-                        Console.WriteLine($"** {value}");
+                        ConsoleHelper.Write("Error parsing connection data:\r\n" + value, "** ", ConsoleColor.Red);
                     }
 
                     break;

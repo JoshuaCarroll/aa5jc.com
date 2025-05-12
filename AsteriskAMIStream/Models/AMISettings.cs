@@ -17,7 +17,7 @@ namespace AsteriskAMIStream.Models
             Console.Clear();
             Console.WriteLine($"\r\n\r\nAMISettings section is missing or invalid in the configuration file. Please provide the information below. These details will be saved into {configFilePath} - update it as needed anytime.\r\n\r\n");
 
-            var amiHost = PromptUser("Enter AMI Host", "10.1.10.207");
+            var amiHost = PromptUser("Enter AMI Host");
             var amiPort = int.Parse(PromptUser("Enter AMI Port", "5038"));
             var amiUsername = PromptUser("Enter AMI Username", "admin");
             var amiPassword = PromptUser("Enter AMI Password");
@@ -45,7 +45,6 @@ namespace AsteriskAMIStream.Models
             Console.WriteLine($"\r\n\r\nConfiguration saved to {configFilePath}.");
         }
 
-
         // Helper method for user input
         private static string PromptUser(string prompt, string defaultValue = "")
         {
@@ -60,6 +59,11 @@ namespace AsteriskAMIStream.Models
             }
 
             return input;
+        }
+
+        public static Boolean Dostuff(string configFilePath)
+        {
+            return true;
         }
     }
 

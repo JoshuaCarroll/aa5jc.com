@@ -9,6 +9,7 @@ namespace AsteriskAMIStream.Services
     using System.IO;
     using Newtonsoft.Json;
     using System.Collections.Generic;
+    using AsteriskAMIStream.Models;
 
     public class NodeMetadata
     {
@@ -32,19 +33,28 @@ namespace AsteriskAMIStream.Services
         {
             if (File.Exists(CacheFilePath) && File.GetLastWriteTime(CacheFilePath) > DateTime.UtcNow.AddDays(-1))
             {
-                WriteConsole("Node map data cache is still valid, no need to download");
-                return;
+                ConsoleHelper.Write("Node map data cache is still valid, no need to download", "", ConsoleColor.DarkYellow);
+
+                var json = File.ReadAllText(CacheFilePath);
+                nodesMetadata = JsonConvert.DeserializeObject<List<NodeMetadata>>(json);
             }
-
-            WriteConsole("Cache is old or missing. Attempting to download...");
-
-            using (var httpClient = new HttpClient())
+            else
             {
-                var mapData = await httpClient.GetStringAsync(mapApiUrl);
-                var nodes = ParseMapData(mapData);
+                ConsoleHelper.Write("Cache is old or missing. Attempting to download...", "", ConsoleColor.DarkYellow);
 
-                SaveToJsonFile(nodes);
+                using (var httpClient = new HttpClient())
+                {
+                    var mapData = await httpClient.GetStringAsync(mapApiUrl);
+                    nodesMetadata = ParseMapData(mapData);
+
+                    var json = JsonConvert.SerializeObject(nodesMetadata, Formatting.Indented);
+                    File.WriteAllText(CacheFilePath, json);
+                }
+
+                ConsoleHelper.Write("Node metadata was updated.", "", ConsoleColor.DarkYellow);
             }
+
+
         }
 
         private static List<NodeMetadata> ParseMapData(string rawData)
@@ -74,32 +84,15 @@ namespace AsteriskAMIStream.Services
             return nodes;
         }
 
-        private static void SaveToJsonFile(List<NodeMetadata> nodes)
-        {
-            var json = JsonConvert.SerializeObject(nodes, Formatting.Indented);
-            File.WriteAllText(CacheFilePath, json);
-        }
-
-        // Method to load cached metadata from the JSON file
-        public static void LoadCachedMetadata()
-        {
-            if (File.Exists(CacheFilePath))
-            {
-                var json = File.ReadAllText(CacheFilePath);
-                nodesMetadata = JsonConvert.DeserializeObject<List<NodeMetadata>>(json);
-            }
-        }
-
         public static NodeMetadata GetNodeMetadata(string nodeNumber)
         {
-            return nodesMetadata.FirstOrDefault(node => node.NodeNumber == nodeNumber);
-        }
-
-        private static void WriteConsole(string text)
-        {
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.WriteLine(text);
-            Console.ForegroundColor = ConsoleColor.Green;
+            NodeMetadata? nodeMetadata = nodesMetadata.FirstOrDefault(node => node.NodeNumber == nodeNumber);
+            if (nodeMetadata == default)
+            {
+                ConsoleHelper.Write($"Node {nodeNumber} not found in metadata.", "", ConsoleColor.Red);
+                nodeMetadata = new NodeMetadata();
+            }
+            return nodeMetadata;
         }
     }
 }

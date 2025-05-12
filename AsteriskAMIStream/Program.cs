@@ -40,8 +40,6 @@ if (rebuildConfigFile)
     AMISettings.PromptForConfiguration(configFilePath);
 }
 
-Console.WriteLine("Version 1.0.0 - Asterisk AMI Stream Service");
-
 // Reload the configuration with the updated file
 configuration = builder.Configuration.AddJsonFile(configFilePath).Build();
 
@@ -52,7 +50,6 @@ var app = builder.Build();
 
 // Load node metadata
 await AsteriskAMIStream.Services.MetadataService.DownloadAndCacheMetadata();
-AsteriskAMIStream.Services.MetadataService.LoadCachedMetadata();
 
 app.MapControllers();  // Now the controllers are mapped after the services are configured
 
