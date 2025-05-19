@@ -1,0 +1,82 @@
+* {
+    margin 0;
+    padding: 0;
+}
+
+#map {
+    height: 600px;
+    width: 1000px;
+    margin-top: 10px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    float: left;
+}
+
+    #map .icon-antenna, #map .icon-receiving, #map .icon-transmitting {
+        display: inline-block;
+        height: 30px !important;
+        width: 30px !important;
+        background-size: 30px 30px;
+        background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAE5QTFRFAAAAgYGBnJycwMDA4+Pj+vr6mpqa5ubm////gICAtLS0tbW19/f3oqKig4ODg4ODwMDAm5ub/v7+mZmZtLS0+fn5z8/PnJyc7Ozsq6urw9MykgAAABp0Uk5TAA6X5Pv/kPz/BNPU/6obHeOW/4/S//GZ/cJ8gAbKAAAA1klEQVR4nO3Wyw6DIBQEUHnptQqt1uf//2ghVdSyGkgaF8wKF3MCBIhFcecwLqRSUnAW1y8r2lKVEfX6Qac0NQw0dEmD9su92WpjdEsEroL59Wv3qe0+YDvJ/dyN+zR2wCFAXIGnHQgIkPS7BJIQoDywbyKpSMAHA2QIYEsQIfCCAB4CHQQcB2kPeJCOo7ylf2P94DINaL+oz0I/4Nf58qDA8//GPmmuLrrIJ83FAfHtDGQgAxnIQAYykIFbAiPRmARMRFMSMBPNSQBbloR/PJd1Tev/IR+Kcg/WCO6HiAAAAABJRU5ErkJggg==);
+    }
+
+    #map .icon-antenna {
+        filter: invert(50%) hue-rotate(180deg) brightness(90%) contrast(90%);
+    }
+
+    #map .icon-receiving {
+    }
+
+    #map .icon-transmitting {
+        animation-name: transmitting;
+        animation-duration: 2s;
+        animation-iteration-count: infinite;
+    }
+
+#log {
+    opacity: 0.3;
+}
+
+@keyframes transmitting {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+/* DARK MODE */
+.leaflet-layer,
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out,
+.leaflet-control-attribution {
+    filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+}
+
+@media only screen and (max-width: 800px) and (max-height: 480px) {
+    #map {
+        height: 200px;
+        width: 200px;
+    }
+
+    #connectionFields, #header {
+        display: none;
+    }
+
+    #skywarn {
+        height: 50px;
+        width: 100px;
+        position: absolute;
+        left: 370px;
+        top: 290px;
+        background-color: #CA2D23;
+        color: #fff;
+        border-radius: 15px;
+    }
+}

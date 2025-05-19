@@ -1,18 +1,16 @@
-var server = "https://local.aa5jc.com";
-
 function getUrl(page) {
 	var url = "";
 	
 	switch (page) {
 		case "stats":
-			url = "/stats.php";
+			url = "http://local.aa5jc.com/stats.php";
 			break;
 		case "main":
-			url = "/local/link.php?nodes=499601";
+			url = "/connections.html";
 			break;
 	}
 	
-    return server + url;
+    return url;
 }
 
 var uiBorder = ['bg-1'];
@@ -345,7 +343,7 @@ function getMillisecondsLeft() {
         return ms;
 }
 function tmrClock_tick() {
-        getData();
+        //getData();
         tmrClock = window.setTimeout(function() {
                 tmrClock_tick();
         }, getMillisecondsLeft());
