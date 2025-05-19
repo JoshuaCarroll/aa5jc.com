@@ -14,7 +14,7 @@ builder.Services.AddMvc();
 builder.Services.AddControllers();  // Ensure controllers are added before building the app
 
 // Load configuration from appsettings.json or prompt user if not found or invalid
-string configFilePath = Path.Combine("/app/data", "amiSettings.json");
+string configFilePath = Path.Combine("/home/repeater", "amiSettings.json"); /// TODO: Make this configurable
 IConfiguration configuration;
 
 var rebuildConfigFile = false;

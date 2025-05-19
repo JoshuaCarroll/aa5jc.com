@@ -21,7 +21,7 @@ function Build {
     dotnet publish $ProjectDir `
     -c Release `
     -r linux-arm `
-    --self-contained true `
+    --self-contained false `
     -p:PublishSingleFile=true `
     -p:IncludeNativeLibrariesForSelfExtract=true `
     -p:IncludeAllContentForSelfExtract=true `
@@ -53,7 +53,7 @@ function Push {
     $remotePath = "/home/${ServerLogin}/${DockerTag}"
     ssh ${ServerLogin}@${ServerAddress} "mkdir -p ${remotePath}"
     scp -r $PublishDir ${ServerLogin}@${ServerAddress}:$remotePath
-    scp $Dockerfile ${ServerLogin}@${ServerAddress}:$remotePath
+    #scp $Dockerfile ${ServerLogin}@${ServerAddress}:$remotePath
 }
 
 function RemoteRun {
@@ -70,7 +70,7 @@ sudo docker run -d --name ${DockerTag} --network host ${DockerTag}
 }
 
 # Run all steps
-Clean
-Build
+#Clean
+#Build
 Push
-RemoteRun
+#RemoteRun
