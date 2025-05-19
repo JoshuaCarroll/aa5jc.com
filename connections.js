@@ -71,6 +71,6 @@ function getJSONP(url, success) {
 
 }
 
-getJSONP('http://local.aa5jc.com/api/', function(data) {
+getJSONP('https://local.aa5jc.com/api/', function(data) {
     loadConnections(data);
 });  
