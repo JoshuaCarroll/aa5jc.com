@@ -5,14 +5,14 @@ function getUrl(page) {
 	
 	switch (page) {
 		case "stats":
-			url = "/stats.php";
+			url = server + "/stats.php";
 			break;
 		case "main":
 			url = "/connections.html";
 			break;
 	}
 	
-    return server + url;
+    return url;
 }
 
 var uiBorder = ['bg-1'];
@@ -24,11 +24,11 @@ var empty = ['bg-empty'];
 var tmrClock = null;
 var data = {
         location: {
-                latitude:'',
-                longitude:''
+                latitude:'34.123',
+                longitude:'-92.456'
         },
         server: {
-                cputemp: { F:0,C:0 },
+                cputemp: { F:100,C:34 },
                 memory: { percentAvailable: '100' },
                 cpuusage: 0,
                 services: {
@@ -294,7 +294,7 @@ function buildNemesisUi() {
                                 //Left Columns & Elbow
                                 {type:'wrapper', version:'column', flex:'v', children:[
                                         {type:'elbow', version:'top-left', color:LCARS.colorGen(uiBorder), class:'step-two'},
-                                        {type:'button', id:'btn00', color:LCARS.colorGen(uiColorsDark), label:'Allstar Hub', href:'javascript:setContent("'+ server + '/local/link.php?nodes=499601", "btn00")'},
+                                        {type:'button', id:'btn00', color:LCARS.colorGen(uiColorsDark), label:'Allstar Hub', href:'javascript:setContent("/connections.html", "btn00")'},
                                         {type:'button', id:'btn01', color:LCARS.colorGen(uiColorsDark), label:'Monitor Skywarn', href:'javascript:setContent("https://www.broadcastify.com/webPlayer/45060", "btn01")'},
                                         {type:'button', id:'btn05', color:LCARS.colorGen(uiColorsDark), label:'Radar', href:'javascript:setContent("https://radar.weather.gov/?settings=v1_eyJhZ2VuZGEiOnsiaWQiOiJuYXRpb25hbCIsImNlbnRlciI6Wy05Mi4wOTUsMzQuNjU4XSwibG9jYXRpb24iOm51bGwsInpvb20iOjcuNjgyNTI2NzY1NDYxMjI3LCJsYXllciI6ImJyZWZfcWNkIn0sImFuaW1hdGluZyI6ZmFsc2UsImJhc2UiOiJkYXJrY2FudmFzIiwiYXJ0Y2MiOmZhbHNlLCJjb3VudHkiOnRydWUsImN3YSI6ZmFsc2UsInJmYyI6ZmFsc2UsInN0YXRlIjpmYWxzZSwibWVudSI6dHJ1ZSwic2hvcnRGdXNlZE9ubHkiOnRydWUsIm9wYWNpdHkiOnsiYWxlcnRzIjowLjgsImxvY2FsIjowLjYsImxvY2FsU3RhdGlvbnMiOjAuOCwibmF0aW9uYWwiOjAuNn19", "btn05")'},
 					{type:'button', color:LCARS.colorGen(uiBorder), flexC:'v'},
