@@ -10,7 +10,7 @@ body {
 }
 
 #map {
-    height: 600px;
+    height: 800px;
     width: 1000px;
     margin-top: 10px;
     margin-right: 10px;
@@ -39,24 +39,58 @@ body {
         animation-iteration-count: infinite;
     }
 
-@keyframes transmitting {
-    0% {
-        opacity: 1;
-    }
+        @keyframes transmitting {
+            0% {
+                opacity: 1;
+            }
 
-    50% {
-        opacity: 0.7;
-    }
+            50% {
+                opacity: 0.7;
+            }
 
-    100% {
-        opacity: 1;
-    }
-}
+            100% {
+                opacity: 1;
+            }
+        }
 
 #divConnections {
     float: left;
     margin-left: 5px;
 }
+
+    #divConnections table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+        #divConnections table td {
+            border: solid 1px #444;
+            padding: 1px;
+        }
+
+        #divConnections table tr td:nth-of-type(1) {
+            width: 50px;
+            overflow: hidden;
+        }
+
+        #divConnections table tr td:nth-of-type(2) {
+            width: 250px;
+            overflow: hidden;
+        }
+
+        #divConnections table tr td:nth-of-type(3) {
+            width: 90px;
+            overflow: hidden;
+        }
+
+        #divConnections table tr td:nth-of-type(4) {
+            width: 90px;
+            overflow: hidden;
+        }
+
+        #divConnections table tr:nth-of-type(2n+1) {
+            background-color: rgba(255,255,255,0.1)
+        }
 
 
 /* DARK MODE */
