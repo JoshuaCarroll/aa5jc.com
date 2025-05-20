@@ -98,7 +98,7 @@ function loadConnections(nodes) {
 			}
 
 			$("#tbodyConnections").append(
-				"<tr id='t" + id + "'><td>" + id + "</td><td>" + node.location + "</td><td>" + node.timeSpanConnected + "</td><td>" + (node.timeSinceTransmit ?? "∞") + "</td></tr>"
+				"<tr id='t" + id + "'><td>" + id + "</td><td>" + (node.location ?? "Unk") + "</td><td>" + (node.timeSpanConnected ?? "∞") + "</td><td>" + (node.timeSinceTransmit ?? "∞") + "</td></tr>"
 			);
 		}
 		else {
