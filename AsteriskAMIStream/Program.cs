@@ -21,10 +21,13 @@ var rebuildConfigFile = false;
 // Check if config file exists
 if (File.Exists(configFilePath))
 {
-    configuration = builder.Configuration.AddJsonFile(configFilePath).Build();
+    // Reload the configuration with the updated file
+    configuration = builder.Configuration.AddJsonFile(configFilePath, optional: false, reloadOnChange: true)
+        .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+        .Build();
 
     // Validate if AMISettings section exists and is valid
-    var amiSettings = configuration.GetSection("AMISettings").Get<List<AMISettings>>();
+    var amiSettings = builder.Configuration.GetSection("AMISettings").Get<List<AMISettings>>();
 
     if (amiSettings == null || !amiSettings.Any())
     {
@@ -42,10 +45,17 @@ if (rebuildConfigFile)
 }
 
 // Reload the configuration with the updated file
-configuration = builder.Configuration.AddJsonFile(configFilePath).Build();
+builder.Configuration.AddJsonFile(configFilePath, optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+    .Build();
 
 // Register services
-builder.Services.AddSingleton<IConfiguration>(configuration);
+builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
+
+builder.WebHost.ConfigureKestrel((context, options) =>
+{
+    options.Configure(context.Configuration.GetSection("Kestrel"));
+});
 
 var app = builder.Build();
 
