@@ -47,16 +47,106 @@ function setStatus(node, status) {
 }
 
 function loadConnections(nodes) {
-	for (var x = 0; x < nodes.length; x++) {
-		if (nodes[x].latitude != null && nodes[x].latitude != 0 && nodes[x].longitude != null && nodes[x].longitude != 0) {
-			newMarker(nodes[x].node, nodes[x].location, nodes[x].latitude, nodes[x].longitude);
+	const newData = {};
+	const currentNodes = new Set();
+	const existingNodes = new Set();
+
+	// Build quick lookup of incoming nodes
+	for (const node of nodes) {
+		newData[node.node] = node;
+		currentNodes.add(node.node);
+	}
+
+	if (!dataCache) dataCache = {};
+
+	for (const cachedNode in dataCache) {
+		existingNodes.add(cachedNode);
+	}
+
+	// 1. Fade out and remove nodes no longer in data
+	for (const cachedNode of existingNodes) {
+		if (!currentNodes.has(cachedNode)) {
+			$("#t" + cachedNode).fadeOut(500, function () {
+				$(this).remove();
+			});
+
+			try {
+				map.removeLayer(window["m" + cachedNode]);
+			} catch { }
+
+			delete dataCache[cachedNode];
+		}
+	}
+
+	// 2. Add/update nodes
+	for (const node of nodes) {
+		const id = node.node;
+		const markerVar = "m" + id;
+		const latValid = node.latitude != null && node.latitude !== 0;
+		const lonValid = node.longitude != null && node.longitude !== 0;
+		const safeTransmit = node.timeSinceTransmit ?? "∞";
+
+		const $existingRow = $("#t" + id);
+
+		// Add new node
+		if (!$existingRow.length) {
+			if (latValid && lonValid) {
+				window[markerVar] = newMarker(id, node.location, node.latitude, node.longitude);
+			}
+
+			const $newRow = $(
+				"<tr id='t" + id + "' style='display:none'>" +
+				"<td>" + id + "</td>" +
+				"<td>" + node.location + "</td>" +
+				"<td>" + node.timeSpanConnected + "</td>" +
+				"<td>" + safeTransmit + "</td>" +
+				"</tr>"
+			);
+
+			$("#tbodyConnections").append($newRow);
+			$newRow.fadeIn(500);
+		}
+		// Update existing node
+		else {
+			const $cells = $existingRow.children("td");
+			if (
+				$cells.eq(1).text() !== node.location ||
+				$cells.eq(2).text() !== node.timeSpanConnected ||
+				$cells.eq(3).text() !== safeTransmit
+			) {
+				$cells.eq(1).text(node.location);
+				$cells.eq(2).text(node.timeSpanConnected);
+				$cells.eq(3).text(safeTransmit);
+
+				$existingRow.css("background-color", "#fff3cd").delay(50).animate({ backgroundColor: "#ffffff" }, 1000);
+			}
+
+			if (latValid && lonValid) {
+				try {
+					window[markerVar].setPopupContent(node.location + "<br>" + "node " + id);
+				} catch { }
+			}
 		}
 
-		$("#tbodyConnections")
-			.append("<tr><td>" + nodes[x].node + "</td><td>" + nodes[x].location + "</td><td>" + nodes[x].timeSpanConnected + "</td><td>" + (nodes[x].timeSinceTransmit ?? "∞") + "</td></tr>");
+		setStatus(id, node.status);
+		dataCache[id] = node;
 	}
+
+	// 3. Re-sort table rows alphabetically by node ID
+	const rows = $("#tbodyConnections tr").get();
+	rows.sort((a, b) => {
+		const idA = $(a).children("td").eq(0).text().toUpperCase();
+		const idB = $(b).children("td").eq(0).text().toUpperCase();
+		return idA.localeCompare(idB);
+	});
+	$.each(rows, function (index, row) {
+		$("#tbodyConnections").append(row);
+	});
 }
 
+
+
+var dataCache = null;
 function loadData() {
     $.getJSON("https://local.aa5jc.com/api/", function (data) {
         loadConnections(data);
