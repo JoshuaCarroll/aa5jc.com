@@ -1,4 +1,4 @@
-var iconHeight = 30;
+﻿var iconHeight = 30;
 var iconWidth = 30;
 
 var zoomLevel = 6;
@@ -32,7 +32,6 @@ function newMarker(node, city, lat, lon) {
 }
 
 function setStatus(node, status) {
-	console.log(node, status);
 	if (status == "transmitting") {
 		try {
 			eval("m"+node+".setIcon(iconTransmitting);");
@@ -49,11 +48,24 @@ function setStatus(node, status) {
 
 function loadConnections(nodes) {
 	for (var x = 0; x < nodes.length; x++) {
-		if (nodes[x].latitude != null && nodes[x].latitude != 0 && nodes[x].longitude != null && nodes[x].longitude != 0)
-		newMarker(nodes[x].node, nodes[x].location, nodes[x].latitude, nodes[x].longitude);
+		if (nodes[x].latitude != null && nodes[x].latitude != 0 && nodes[x].longitude != null && nodes[x].longitude != 0) {
+			newMarker(nodes[x].node, nodes[x].location, nodes[x].latitude, nodes[x].longitude);
+		}
+
+		$("#tbodyConnections")
+			.append("<tr><td>" + nodes[x].node + "</td><td>" + nodes[x].location + "</td><td>" + nodes[x].timeSpanConnected + "</td><td>" + (nodes[x].timeSinceTransmit ?? "∞") + "</td></tr>");
 	}
 }
 
-$.getJSON( "https://local.aa5jc.com/api/", function( data ) {
-	loadConnections(data);
+function loadData() {
+    $.getJSON("https://local.aa5jc.com/api/", function (data) {
+        loadConnections(data);
+    });
+}
+
+
+$(function () {
+	setInterval(function () {
+		loadData();
+	}, 2000);
 });

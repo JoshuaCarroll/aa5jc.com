@@ -35,13 +35,9 @@ body {
 
     #map .icon-transmitting {
         animation-name: transmitting;
-        animation-duration: 2s;
+        animation-duration: 1s;
         animation-iteration-count: infinite;
     }
-
-#log {
-    opacity: 0.3;
-}
 
 @keyframes transmitting {
     0% {
@@ -56,6 +52,12 @@ body {
         opacity: 1;
     }
 }
+
+#divConnections {
+    float: left;
+    margin-left: 5px;
+}
+
 
 /* DARK MODE */
 .leaflet-layer,
