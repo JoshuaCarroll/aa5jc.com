@@ -22,6 +22,7 @@ var iconReceiving = L.divIcon({
 	className: 'icon-receiving',
 	iconAnchor: [iconWidth/2,iconHeight]
 });
+
 var iconTransmitting = L.divIcon({
 	className: 'icon-transmitting',
 	iconAnchor: [iconWidth/2,iconHeight]
@@ -29,21 +30,6 @@ var iconTransmitting = L.divIcon({
 
 function newMarker(node, city, lat, lon) {
 	return L.marker([lat, lon], {icon: iconDisconnectedNode}).addTo(map).bindPopup(city + "<br>" + "node " + node);;
-}
-
-function setStatus(node, status) {
-	if (status == "transmitting") {
-		try {
-			eval("m"+node+".setIcon(iconTransmitting);");
-		}
-		catch {}
-	}
-	else if (status == "connected") {
-		try {
-			eval("m"+node+".setIcon(iconReceiving);");
-		}
-		catch {}
-	}
 }
 
 function loadConnections(nodes) {
@@ -98,14 +84,14 @@ function loadConnections(nodes) {
 			}
 
 			$("#tbodyConnections").append(
-				"<tr id='t" + id + "'><td>" + id + "</td><td>" + (node.location ?? "Unk") + "</td><td>" + (node.timeSpanConnected ?? "∞") + "</td><td>" + (node.timeSinceTransmit ?? "∞") + "</td></tr>"
+				"<tr id='t" + id + "'><td>" + id + "</td><td>" + (node.callSign ?? "Unk") + "</td><td>" + (node.timeSpanConnected ?? "∞") + "</td><td>" + (node.timeSinceTransmit ?? "∞") + "</td></tr>"
 			);
 		}
 		else {
 			// Update marker popup (optional)
 			if (latValid && lonValid) {
 				try {
-					window[markerVar].setPopupContent(node.location + "<br>" + "node " + id);
+					window[markerVar].setPopupContent("Node " + id + " - " + node.callSign + "<br>" + node.location);
 				} catch { }
 			}
 
@@ -117,7 +103,7 @@ function loadConnections(nodes) {
 		}
 
 		// Update icon
-		setStatus(id, node.status);
+		window[markerVar].setIcon(node.transmitting ? iconTransmitting : iconReceiving);
 
 		// Update cache
 		dataCache[id] = node;
