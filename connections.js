@@ -109,7 +109,12 @@ function loadConnections(nodes) {
 
 		// Update icon
 		if (window[markerVar]) {
-			window[markerVar].setIcon(node.transmitting ? iconTransmitting : iconReceiving);
+			if (node.transmitting) {
+				window[markerVar].setIcon(iconTransmitting);
+			}
+			else {
+				window[markerVar].setIcon(iconReceiving); 
+			}
 		}
 
 		// Update cache
