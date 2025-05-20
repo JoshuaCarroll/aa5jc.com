@@ -51,97 +51,77 @@ function loadConnections(nodes) {
 	const currentNodes = new Set();
 	const existingNodes = new Set();
 
-	// Build quick lookup of incoming nodes
+	// Build a quick lookup from incoming data
 	for (const node of nodes) {
 		newData[node.node] = node;
 		currentNodes.add(node.node);
 	}
 
-	if (!dataCache) dataCache = {};
+	// If this is the first time, initialize dataCache
+	if (!dataCache) {
+		dataCache = {};
+	}
 
+	// Build list of currently cached node IDs
 	for (const cachedNode in dataCache) {
 		existingNodes.add(cachedNode);
 	}
 
-	// 1. Fade out and remove nodes no longer in data
+	// 1. Remove nodes no longer present
 	for (const cachedNode of existingNodes) {
 		if (!currentNodes.has(cachedNode)) {
-			$("#t" + cachedNode).fadeOut(500, function () {
-				$(this).remove();
-			});
-
+			// Remove map marker
 			try {
 				map.removeLayer(window["m" + cachedNode]);
 			} catch { }
 
+			// Remove table row
+			$("#t" + cachedNode).remove();
+
+			// Delete from cache
 			delete dataCache[cachedNode];
 		}
 	}
 
-	// 2. Add/update nodes
+	// 2. Add or update each node
 	for (const node of nodes) {
 		const id = node.node;
 		const markerVar = "m" + id;
-		const latValid = node.latitude != null && node.latitude !== 0;
-		const lonValid = node.longitude != null && node.longitude !== 0;
-		const safeTransmit = node.timeSinceTransmit ?? "∞";
 
-		const $existingRow = $("#t" + id);
+		const latValid = node.latitude != null && node.latitude != 0;
+		const lonValid = node.longitude != null && node.longitude != 0;
 
-		// Add new node
-		if (!$existingRow.length) {
+		// If it's a new node, add it to the map and table
+		if (!dataCache[id]) {
 			if (latValid && lonValid) {
 				window[markerVar] = newMarker(id, node.location, node.latitude, node.longitude);
 			}
 
-			const $newRow = $(
-				"<tr id='t" + id + "' style='display:none'>" +
-				"<td>" + id + "</td>" +
-				"<td>" + node.location + "</td>" +
-				"<td>" + node.timeSpanConnected + "</td>" +
-				"<td>" + safeTransmit + "</td>" +
-				"</tr>"
+			$("#tbodyConnections").append(
+				"<tr id='t" + id + "'><td>" + id + "</td><td>" + node.location + "</td><td>" + node.timeSpanConnected + "</td><td>" + (node.timeSinceTransmit ?? "∞") + "</td></tr>"
 			);
-
-			$("#tbodyConnections").append($newRow);
-			$newRow.fadeIn(500);
 		}
-		// Update existing node
 		else {
-			const $cells = $existingRow.children("td");
-			if (
-				$cells.eq(1).text() !== node.location ||
-				$cells.eq(2).text() !== node.timeSpanConnected ||
-				$cells.eq(3).text() !== safeTransmit
-			) {
-				$cells.eq(1).text(node.location);
-				$cells.eq(2).text(node.timeSpanConnected);
-				$cells.eq(3).text(safeTransmit);
-
-				$existingRow.css("background-color", "#fff3cd").delay(50).animate({ backgroundColor: "#ffffff" }, 1000);
-			}
-
+			// Update marker popup (optional)
 			if (latValid && lonValid) {
 				try {
 					window[markerVar].setPopupContent(node.location + "<br>" + "node " + id);
 				} catch { }
 			}
+
+			// Update table row content
+			const $row = $("#t" + id + " td");
+			$row.eq(1).text(node.location);
+			$row.eq(2).text(node.timeSpanConnected);
+			$row.eq(3).text(node.timeSinceTransmit ?? "∞");
 		}
 
+		// Update icon
 		setStatus(id, node.status);
+
+		// Update cache
 		dataCache[id] = node;
 	}
-
-	// 3. Re-sort table rows alphabetically by node ID
-	const rows = $("#tbodyConnections tr").get();
-	rows.sort((a, b) => {
-		const idA = $(a).children("td").eq(0).text().toUpperCase();
-		const idB = $(b).children("td").eq(0).text().toUpperCase();
-		return idA.localeCompare(idB);
-	});
-	$.each(rows, function (index, row) {
-		$("#tbodyConnections").append(row);
-	});
 }
 
 
