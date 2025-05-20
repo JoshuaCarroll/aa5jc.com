@@ -1,16 +1,18 @@
+var server = "https://local.aa5jc.com";
+
 function getUrl(page) {
 	var url = "";
 	
 	switch (page) {
 		case "stats":
-			url = "http://local.aa5jc.com/stats.php";
+			url = "/stats.php";
 			break;
 		case "main":
 			url = "/connections.html";
 			break;
 	}
 	
-    return url;
+    return server + url;
 }
 
 var uiBorder = ['bg-1'];
