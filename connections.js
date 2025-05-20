@@ -77,6 +77,11 @@ function loadConnections(nodes) {
 		const latValid = node.latitude != null && node.latitude != 0;
 		const lonValid = node.longitude != null && node.longitude != 0;
 
+		// If it's a private node, skip it
+        if (id < 2000) {
+            continue;
+        }
+
 		// If it's a new node, add it to the map and table
 		if (!dataCache[id]) {
 			if (latValid && lonValid) {
@@ -97,13 +102,15 @@ function loadConnections(nodes) {
 
 			// Update table row content
 			const $row = $("#t" + id + " td");
-			$row.eq(1).text(node.location);
-			$row.eq(2).text(node.timeSpanConnected);
+			$row.eq(1).text(node.callSign ?? "Unk");
+			$row.eq(2).text(node.timeSpanConnected ?? "∞");
 			$row.eq(3).text(node.timeSinceTransmit ?? "∞");
 		}
 
 		// Update icon
-		window[markerVar].setIcon(node.transmitting ? iconTransmitting : iconReceiving);
+		if (window[markerVar]) {
+			window[markerVar].setIcon(node.transmitting ? iconTransmitting : iconReceiving);
+		}
 
 		// Update cache
 		dataCache[id] = node;
