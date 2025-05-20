@@ -89,7 +89,7 @@ function loadConnections(nodes) {
 			}
 
 			$("#tbodyConnections").append(
-				"<tr id='t" + id + "'><td>" + id + "</td><td>" + (node.callSign ?? "Unk") + "</td><td>" + (node.timeSpanConnected ?? "∞") + "</td><td>" + (node.timeSinceTransmit ?? "∞") + "</td></tr>"
+				"<tr id='t" + id + "'><td>" + id + "</td><td>" + node.callSign + " - " + node.location + "</td><td>" + (node.timeSpanConnected ?? "∞") + "</td><td>" + (node.timeSinceTransmit ?? "∞") + "</td></tr>"
 			);
 		}
 		else {
@@ -102,7 +102,7 @@ function loadConnections(nodes) {
 
 			// Update table row content
 			const $row = $("#t" + id + " td");
-			$row.eq(1).text(node.callSign ?? "Unk");
+			$row.eq(1).text(node.callSign + " - " + node.location);
 			$row.eq(2).text(node.timeSpanConnected ?? "∞");
 			$row.eq(3).text(node.timeSinceTransmit ?? "∞");
 		}
