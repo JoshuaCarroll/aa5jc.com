@@ -15,17 +15,20 @@ var tiles = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
 
 var iconDisconnectedNode = L.divIcon({
 	className: 'icon-antenna',
-	iconAnchor: [iconWidth/2,iconHeight]
+	iconAnchor: [iconWidth / 2, iconHeight],
+	popupAnchor: [iconWidth, iconHeight]
 });
 
 var iconReceiving = L.divIcon({
 	className: 'icon-receiving',
-	iconAnchor: [iconWidth/2,iconHeight]
+	iconAnchor: [iconWidth / 2, iconHeight],
+	popupAnchor: [iconWidth, iconHeight]
 });
 
 var iconTransmitting = L.divIcon({
 	className: 'icon-transmitting',
-	iconAnchor: [iconWidth/2,iconHeight]
+	iconAnchor: [iconWidth / 2, iconHeight],
+	popupAnchor: [iconWidth, iconHeight]
 });
 
 function newMarker(node, city, lat, lon) {
