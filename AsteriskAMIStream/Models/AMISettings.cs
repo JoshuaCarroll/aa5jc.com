@@ -60,11 +60,6 @@ namespace AsteriskAMIStream.Models
 
             return input;
         }
-
-        public static Boolean Dostuff(string configFilePath)
-        {
-            return true;
-        }
     }
 
     public class Config

@@ -165,9 +165,6 @@ public class AllstarClient
             $"ActionID: {ActionID}\r\n\r\n";
 
         await SendAsync(rptCommand);
-        
-        /// TODO: Do I even need this anymore?
-        //await SendAsync($"ACTION: RptStatus\r\nCOMMAND: SawStat\r\nNODE: {nodeNumber}\r\n");
     }
 
     private void ParseResponse(string rawMessage)
