@@ -42,9 +42,7 @@ $(function () {
 var dataCache = null;
 function loadData() {
 	$.getJSON("https://local.aa5jc.com/api/asl?node=65017", function (data) {
-
 		ProcessNodes(data);
-
 	});
 }
 
@@ -71,30 +69,13 @@ function AddOrUpdateNode(node) {
         return;
     }
 
-	// If it's a new node, add it to the map and table
-	if (!dataCache[nodeId]) {
-		if (latValid && lonValid) {
-			window[markerName] = newMarker(nodeId, node.server.location, node.server.latitude, node.server.longitude);
-		}
-
-		$("#tbodyConnections").append(
-			"<tr id='t" + nodeId + "'><td>" + nodeId + "</td><td>" + node.user_ID + " - " + node.server.location + "</td><td>" + "LINKED" + "</td><td>" + "∞" + "</td></tr>"
-		);
+	if (latValid && lonValid) {
+		window[markerName] = newMarker(nodeId, node.server.location, node.server.latitude, node.server.longitude);
 	}
-	else {
-		// Update marker popup (optional)
-		if (latValid && lonValid) {
-			try {
-				window[markerName].setPopupContent("Node " + nodeId + " - " + node.User_ID + "<br>" + node.server.location);
-			} catch { }
-		}
 
-		// Update table row content
-		const $row = $("#t" + nodeId + " td");
-		$row.eq(1).text(node.User_ID + " - " + node.server.location);
-		$row.eq(2).text("LINKED");
-		$row.eq(3).text("∞");
-	}
+	$("#tbodyConnections").append(
+		"<tr id='t" + nodeId + "'><td>" + nodeId + "</td><td>" + node.user_ID + " - " + node.server.location + "</td><td>" + "LINKED" + "</td><td>" + "∞" + "</td></tr>"
+	);
 
 	// Update icon
 	window[markerName].setIcon(iconReceiving); 
