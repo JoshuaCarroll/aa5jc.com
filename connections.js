@@ -43,7 +43,7 @@ var dataCache = null;
 function loadData() {
 	$.getJSON("https://local.aa5jc.com/api/asl?node=65017", function (data) {
 
-		AddOrUpdateNode(data);
+		ProcessNodes(data);
 
 	});
 }
