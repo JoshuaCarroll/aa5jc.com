@@ -78,7 +78,7 @@ function AddOrUpdateNode(node) {
 	);
 
 	// Update icon
-	window[markerName].setIcon(iconReceiving); 
+	//window[markerName].setIcon(iconReceiving); 
 }
 
 function newMarker(node, city, lat, lon) {
