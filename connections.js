@@ -1,6 +1,8 @@
 ﻿var iconHeight = 30;
 var iconWidth = 30;
 
+var dataCache = {};
+
 var zoomLevel = 6;
 if (screen.height == "480") {
 	zoomLevel = 5;
@@ -35,101 +37,60 @@ function newMarker(node, city, lat, lon) {
 	return L.marker([lat, lon], {icon: iconDisconnectedNode}).addTo(map).bindPopup(city + "<br>" + "node " + node);;
 }
 
-function loadConnections(nodes) {
-	const newData = {};
-	const currentNodes = new Set();
-	const existingNodes = new Set();
-
-	// Build a quick lookup from incoming data
-	for (const node of nodes) {
-		newData[node.node] = node;
-		currentNodes.add(node.node);
-	}
-
-	// If this is the first time, initialize dataCache
-	if (!dataCache) {
-		dataCache = {};
-	}
-
+function AddOrUpdateNode(node) {
 	// Build list of currently cached node IDs
 	for (const cachedNode in dataCache) {
 		existingNodes.add(cachedNode);
 	}
 
-	// 1. Remove nodes no longer present
-	for (const cachedNode of existingNodes) {
-		if (!currentNodes.has(cachedNode)) {
-			// Remove map marker
+	const nodeId = node.name;
+	const markerName = "m" + nodeId;
+
+	const latValid = node.server.latitude != null && node.server.latitude != 0;
+	const lonValid = node.server.longitude != null && node.server.longitude != 0;
+
+	// If it's a private node, skip it
+    if (nodeId < 2000) {
+        continue;
+    }
+
+	// If it's a new node, add it to the map and table
+	if (!dataCache[nodeId]) {
+		if (latValid && lonValid) {
+			window[markerName] = newMarker(nodeId, node.server.location, node.server.latitude, node.server.longitude);
+		}
+
+		$("#tbodyConnections").append(
+			"<tr id='t" + nodeId + "'><td>" + nodeId + "</td><td>" + node.user_ID + " - " + node.server.location + "</td><td>" + "LINKED" + "</td><td>" + "∞" + "</td></tr>"
+		);
+	}
+	else {
+		// Update marker popup (optional)
+		if (latValid && lonValid) {
 			try {
-				map.removeLayer(window["m" + cachedNode]);
+				window[markerName].setPopupContent("Node " + nodeId + " - " + node.User_ID + "<br>" + node.server.location);
 			} catch { }
-
-			// Remove table row
-			$("#t" + cachedNode).remove();
-
-			// Delete from cache
-			delete dataCache[cachedNode];
 		}
+
+		// Update table row content
+		const $row = $("#t" + nodeId + " td");
+		$row.eq(1).text(node.User_ID + " - " + node.server.location);
+		$row.eq(2).text("LINKED");
+		$row.eq(3).text("∞");
 	}
 
-	// 2. Add or update each node
-	for (const node of nodes) {
-		const id = node.node;
-		const markerVar = "m" + id;
+	// Update icon
+	window[markerName].setIcon(iconReceiving); 
 
-		const latValid = node.latitude != null && node.latitude != 0;
-		const lonValid = node.longitude != null && node.longitude != 0;
-
-		// If it's a private node, skip it
-        if (id < 2000) {
-            continue;
-        }
-
-		// If it's a new node, add it to the map and table
-		if (!dataCache[id]) {
-			if (latValid && lonValid) {
-				window[markerVar] = newMarker(id, node.location, node.latitude, node.longitude);
-			}
-
-			$("#tbodyConnections").append(
-				"<tr id='t" + id + "'><td>" + id + "</td><td>" + node.callSign + " - " + node.location + "</td><td>" + (node.timeSpanConnected ?? "∞") + "</td><td>" + (node.timeSinceTransmit ?? "∞") + "</td></tr>"
-			);
-		}
-		else {
-			// Update marker popup (optional)
-			if (latValid && lonValid) {
-				try {
-					window[markerVar].setPopupContent("Node " + id + " - " + node.callSign + "<br>" + node.location);
-				} catch { }
-			}
-
-			// Update table row content
-			const $row = $("#t" + id + " td");
-			$row.eq(1).text(node.callSign + " - " + node.location);
-			$row.eq(2).text(node.timeSpanConnected ?? "∞");
-			$row.eq(3).text(node.timeSinceTransmit ?? "∞");
-		}
-
-		// Update icon
-		if (window[markerVar]) {
-			if (node.transmitting) {
-				window[markerVar].setIcon(iconTransmitting);
-			}
-			else {
-				window[markerVar].setIcon(iconReceiving); 
-			}
-		}
-
-		// Update cache
-		dataCache[id] = node;
-	}
+	// Update cache
+	dataCache[nodeId] = node;
 }
 
 
 
 var dataCache = null;
 function loadData() {
-    $.getJSON("https://local.aa5jc.com/api/", function (data) {
+	$.getJSON("https://local.aa5jc.com/api/asl?node=65017", function (data) {
         loadConnections(data);
     });
 }
