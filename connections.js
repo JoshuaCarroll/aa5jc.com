@@ -51,7 +51,7 @@ function AddOrUpdateNode(node) {
 
 	// If it's a private node, skip it
     if (nodeId < 2000) {
-        continue;
+        return;
     }
 
 	// If it's a new node, add it to the map and table
