@@ -33,16 +33,33 @@ var iconTransmitting = L.divIcon({
 	popupAnchor: [0, -1 * iconHeight]
 });
 
-function newMarker(node, city, lat, lon) {
-	return L.marker([lat, lon], {icon: iconDisconnectedNode}).addTo(map).bindPopup(city + "<br>" + "node " + node);;
+$(function () {
+	//setInterval(function () {
+	loadData();
+	//}, 2000);
+});
+
+var dataCache = null;
+function loadData() {
+	$.getJSON("https://local.aa5jc.com/api/asl?node=65017", function (data) {
+
+		AddOrUpdateNode(data);
+
+	});
+}
+
+function ProcessNodes(nodes) {
+    for (let i = 0; i < nodes.length; i++) {
+        const node = nodes[i];
+		AddOrUpdateNode(node);
+
+		for (let c = 0; c < node.linkedNodes.length; c++) {
+            ProcessNodes(node.linkedNodes[c]);
+		}
+    }
 }
 
 function AddOrUpdateNode(node) {
-	// Build list of currently cached node IDs
-	for (const cachedNode in dataCache) {
-		existingNodes.add(cachedNode);
-	}
-
 	const nodeId = node.name;
 	const markerName = "m" + nodeId;
 
@@ -81,23 +98,8 @@ function AddOrUpdateNode(node) {
 
 	// Update icon
 	window[markerName].setIcon(iconReceiving); 
-
-	// Update cache
-	dataCache[nodeId] = node;
 }
 
-
-
-var dataCache = null;
-function loadData() {
-	$.getJSON("https://local.aa5jc.com/api/asl?node=65017", function (data) {
-        loadConnections(data);
-    });
+function newMarker(node, city, lat, lon) {
+	return L.marker([lat, lon], { icon: iconDisconnectedNode }).addTo(map).bindPopup(city + "<br>" + "node " + node);;
 }
-
-
-$(function () {
-	setInterval(function () {
-		loadData();
-	}, 2000);
-});
