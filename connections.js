@@ -1,7 +1,7 @@
-﻿var iconHeight = 30;
-var iconWidth = 30;
+﻿const { each } = require("jquery");
 
-var dataCache = {};
+var iconHeight = 30;
+var iconWidth = 30;
 
 var zoomLevel = 6;
 if (screen.height == "480") {
@@ -33,28 +33,39 @@ var iconTransmitting = L.divIcon({
 	popupAnchor: [0, -1 * iconHeight]
 });
 
+var dataCache = {};
+
 $(function () {
 	//setInterval(function () {
 	loadData();
 	//}, 2000);
 });
 
-var dataCache = null;
 function loadData() {
-	$.getJSON("https://local.aa5jc.com/api/asl?node=65017", function (data) {
-		ProcessNodes(data);
-	});
-}
-
-function ProcessNodes(nodes) {
-    for (let i = 0; i < nodes.length; i++) {
-        const node = nodes[i];
-		AddOrUpdateNode(node);
-
-		for (let c = 0; c < node.linkedNodes.length; c++) {
-            ProcessNodes(node.linkedNodes[c]);
+	$.getJSON("https://local.aa5jc.com/api/asl?node=65017", function (nodes) {
+		for (let i = 0; i < nodes.length; i++) {
+			const node = nodes[i];
+			AddOrUpdateNode(node);
 		}
-    }
+
+		// Clear old markers that are no longer in the data
+		for (const key in dataCache) {
+			if (!nodes.hasOwnProperty(key)) {
+				const marker = window["m" + dataCache[key].name];
+				if (marker instanceof L.Marker) {
+					map.removeLayer(marker);
+					delete window[markerName];
+				}
+			}
+		}
+
+		// Also remove polylines that are no longer needed
+
+        // Draw lines between nodes
+
+        // Update the cache with the latest data
+		dataCache = nodes;
+	});
 }
 
 function AddOrUpdateNode(node) {
@@ -77,10 +88,30 @@ function AddOrUpdateNode(node) {
 		"<tr id='t" + nodeId + "'><td>" + nodeId + "</td><td>" + node.user_ID + " - " + node.server.location + "</td><td>" + "LINKED" + "</td><td>" + "∞" + "</td></tr>"
 	);
 
-	// Update icon
-	//window[markerName].setIcon(iconReceiving); 
+	// Select icon
+	if (node.data.keyed) {
+		window[markerName].setIcon(iconTransmitting);
+	} else {
+		window[markerName].setIcon(iconReceiving);
+	}
 }
 
 function newMarker(node, city, lat, lon) {
 	return L.marker([lat, lon], { icon: iconDisconnectedNode }).addTo(map).bindPopup(city + "<br>" + "node " + node);;
+}
+
+function drawLineBetweenPoints(pointA, pointB, options = {}) {
+	// Ensure pointA and pointB are arrays in [lat, lng] format
+	const latlngs = [pointA, pointB];
+
+	// Draw the line with optional styling
+	const line = L.polyline(latlngs, {
+		color: options.color || 'white',
+		weight: options.weight || 3,
+		opacity: options.opacity || 0.7,
+		dashArray: options.dashArray || null
+	});
+
+	line.addTo(map);
+	return line; // Return the line if you want to manipulate it later
 }
