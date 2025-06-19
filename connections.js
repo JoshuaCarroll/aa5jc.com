@@ -91,19 +91,21 @@ function AddOrUpdateNode(node) {
 		"<tr id='t" + nodeId + "'><td>" + nodeId + "</td><td>" + node.user_ID + " - " + node.server.location + "</td><td>" + "LINKED" + "</td><td>" + "∞" + "</td></tr>"
 	);
 
-	// Select icon
-	if (node.data.keyed) {
-		window[markerName].setIcon(iconTransmitting);
-	} else {
-		window[markerName].setIcon(iconReceiving);
-	}
+	//// Select icon
+	//if (node.data.keyed) {
+	//	window[markerName].setIcon(iconTransmitting);
+	//} else {
+	//	window[markerName].setIcon(iconReceiving);
+	//}
 }
 
 function newMarker(node, city, lat, lon) {
-	return L.marker([lat, lon], { icon: iconDisconnectedNode }).addTo(map).bindPopup(city + "<br>" + "node " + node);;
+	const marker = L.marker([lat, lon], { icon: iconDisconnectedNode }).addTo(map).bindPopup(city + "<br>" + "node " + node);
+	marker.addTo(map);
+    return marker;
 }
 
-function drawLineBetweenPoints(pointA, pointB, options = {}) {
+function newLine(pointA, pointB, options = {}) {
 	// Ensure pointA and pointB are arrays in [lat, lng] format
 	const latlngs = [pointA, pointB];
 
