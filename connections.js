@@ -42,21 +42,19 @@ $(function () {
 function loadData() {
     console.log("Loading data...");
 	$.getJSON("https://local.aa5jc.com/api/asl", function (nodes) {
-		for (let i = 0; i < nodes.length; i++) {
-			const node = nodes[i];
-			AddOrUpdateNode(node);
-		}
 
-        console.log("Clear old markers that are no longer in the data"); 
-		for (const key in dataCache) {
-			if (!nodes.hasOwnProperty(key)) {
-				const marker = window["m" + dataCache[key].name];
-				if (marker instanceof L.Marker) {
-					map.removeLayer(marker);
-					delete window[markerName];
-				}
-			}
-		}
+		AddOrUpdateNodes(nodes);
+
+  //      console.log("Clear old markers that are no longer in the data"); 
+		//for (const key in dataCache) {
+		//	if (!nodes.hasOwnProperty(key)) {
+		//		const marker = window["m" + dataCache[key].name];
+		//		if (marker instanceof L.Marker) {
+		//			map.removeLayer(marker);
+		//			delete window[markerName];
+		//		}
+		//	}
+		//}
 
 		// Remove polylines that are no longer needed
 
@@ -65,6 +63,12 @@ function loadData() {
         // Update the cache with the latest data
 		dataCache = nodes;
 	});
+}
+
+function AddOrUpdateNodes(nodes) {
+	for (const key in nodes) {
+		AddOrUpdateNode(nodes[key]);
+	}
 }
 
 function AddOrUpdateNode(node) {
