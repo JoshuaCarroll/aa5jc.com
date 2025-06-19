@@ -40,13 +40,14 @@ $(function () {
 });
 
 function loadData() {
-	$.getJSON("https://local.aa5jc.com/api/asl?node=65017", function (nodes) {
+    console.log("Loading data...");
+	$.getJSON("https://local.aa5jc.com/api/asl", function (nodes) {
 		for (let i = 0; i < nodes.length; i++) {
 			const node = nodes[i];
 			AddOrUpdateNode(node);
 		}
 
-		// Clear old markers that are no longer in the data
+        console.log("Clear old markers that are no longer in the data"); 
 		for (const key in dataCache) {
 			if (!nodes.hasOwnProperty(key)) {
 				const marker = window["m" + dataCache[key].name];
@@ -57,7 +58,7 @@ function loadData() {
 			}
 		}
 
-		// Also remove polylines that are no longer needed
+		// Remove polylines that are no longer needed
 
         // Draw lines between nodes
 
