@@ -1,6 +1,4 @@
-﻿const { each } = require("jquery");
-
-var iconHeight = 30;
+﻿var iconHeight = 30;
 var iconWidth = 30;
 
 var zoomLevel = 6;
