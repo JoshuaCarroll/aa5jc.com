@@ -38,9 +38,12 @@ function loadData() {
 		// Clear old markers that are no longer in the data
 		for (const key in nodeCache) {
 			if (!nodes.hasOwnProperty(key)) {
-				const marker = window[markerNamePrefix + nodeCache[key].name];
+				const markerName = markerNamePrefix + nodeCache[key].name;
+				const marker = window[markerName];
 				if (marker instanceof L.Marker) {
 					map.removeLayer(marker);
+				}
+				if (window[markerName]) {
 					delete window[markerName];
 				}
 			}
