@@ -133,23 +133,24 @@ async function checkActiveTransmitters(nodes) {
 }
 
 setInterval(async () => {
-  const active = await checkActiveTransmitters(nodeCache);
+	const active = await checkActiveTransmitters(nodeCache);
   
-  if (active.length) {
-    console.log('Active transmitters: ', active.map(n => n.name));
+	if (active.length) {
+		console.log('Active transmitters: ', active.map(n => n.name));
 
-	// Set the icon for each newly receiving node
-	for (const nodeNumber of activeTransmittersCache) {
+		// Set the icon for each newly receiving node
+		for (const nodeNumber of activeTransmittersCache) {
 		
-		var indexOfActiveNode = active.indexOf(nodeNumber);
+			var indexOfActiveNode = active.indexOf(nodeNumber);
 
-		if (indexOfActiveNode == -1) {
-			// The node is no longer active, so we set its icon to receiving
-			const markerName = markerNamePrefix + nodeNumber;
-			window[markerName].setIcon(iconReceiving);
+			if (indexOfActiveNode == -1) {
+				// The node is no longer active, so we set its icon to receiving
+				const markerName = markerNamePrefix + nodeNumber;
+				window[markerName].setIcon(iconReceiving);
 
-			// Remove the item from the activeTransmittersCache array
-			activeTransmittersCache.splice(indexOfActiveNode, 1);
+				// Remove the item from the activeTransmittersCache array
+				activeTransmittersCache.splice(indexOfActiveNode, 1);
+			}
 		}
 	}
 
@@ -163,9 +164,9 @@ setInterval(async () => {
 				// If the node is not already in the activeTransmittersCache, add it
 				activeTransmittersCache.push(nodeNumber);
 				window[markerName].setIcon(iconTransmitting);
+				}
 			}
-		}
-  }
+	}
 }, howOftenToUpdateKeyedNodes);
 
 
