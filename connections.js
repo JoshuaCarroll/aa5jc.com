@@ -76,6 +76,9 @@ function AddOrUpdateNodes(nodes) {
 }
 
 function AddOrUpdateNode(node) {
+	if (!node || !node.server || !node.server.location || !node.server.latitude || !node.server.logitude) 
+		return; // Skip if node data is incomplete
+
 	console.debug("Adding or updating node: " + node.name);
 
 	const nodeNumber = node.name;
