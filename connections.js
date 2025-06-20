@@ -3,7 +3,8 @@
 var markerNamePrefix = "m";
 var lineNamePrefix = "l";
 
-var howOftenToUpdateNodes = 5000; // milliseconds
+var howOftenToUpdateNodes = 10000; // milliseconds
+var howOftenToUpdateKeyedNodes = 3000; // milliseconds
 
 var iconHeight = 30;
 var iconWidth = 30;
@@ -62,6 +63,9 @@ function loadData() {
 function AddOrUpdateNodes(nodes) {
 	console.log("Adding or updating nodes...");
 
+	// Clear the table body before adding new rows
+	$("#tbodyConnections").empty();
+
 	for (const key in nodes) {
 		AddOrUpdateNode(nodes[key]);
 	}
@@ -109,6 +113,48 @@ function connectNodes(nodeA, nodeB) {
 	}
 }
 
+// _____ Keyed node functions _____
+async function checkActiveTransmitters(nodes) {
+  const keyedList = await fetchKeyedNodes(); 
+  return nodes.filter(n => keyedList.includes(n.name));
+}
+
+setInterval(async () => {
+	$.getJSON("https://local.aa5jc.com/api/transmitting", function (activeNodes) {
+		if (activeNodes.length) {
+			console.log('Active transmitters: ', activeNodes.map(n => n.name));
+
+			// Set the icon for each newly receiving node
+			for (const nodeNumber of activeTransmittersCache) {
+		
+				var indexOfActiveNode = activeNodes.indexOf(nodeNumber);
+
+				if (indexOfActiveNode == -1) {
+					// The node is no longer active, so we set its icon to receiving
+					const markerName = markerNamePrefix + nodeNumber;
+					window[markerName].setIcon(iconReceiving);
+
+					// Remove the item from the activeTransmittersCache array
+					activeTransmittersCache.splice(indexOfActiveNode, 1);
+				}
+			}
+		}
+
+		// Set the icon for each newly active node
+		for (const node of activeNodes) {
+			const nodeNumber = node.name;
+			const markerName = markerNamePrefix + nodeNumber;
+			if (window[markerName]) {
+				// If the marker already exists, update its icon
+				if (!activeTransmittersCache.includes(nodeNumber)) {
+					// If the node is not already in the activeTransmittersCache, add it
+					activeTransmittersCache.push(nodeNumber);
+					window[markerName].setIcon(iconTransmitting);
+				}
+			}
+		}
+	});
+}, howOftenToUpdateKeyedNodes);
 
 // _____ Leaflet Map Functions _____
 
