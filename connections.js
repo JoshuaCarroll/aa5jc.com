@@ -18,9 +18,15 @@ var nodeCache = {};
 var activeTransmittersCache = [];
 
 $(function () {
+	loadData();
+
 	setInterval(function () {
 		loadData();
 	}, howOftenToUpdateNodes);
+
+	setInterval(async () => {
+		checkActiveTransmitters();
+	}, howOftenToUpdateKeyedNodes);
 });
 
 function loadData() {
@@ -112,12 +118,7 @@ function connectNodes(nodeA, nodeB) {
 }
 
 // _____ Keyed node functions _____
-async function checkActiveTransmitters(nodes) {
-  const keyedList = await fetchKeyedNodes(); 
-  return nodes.filter(n => keyedList.includes(n.name));
-}
-
-setInterval(async () => {
+async function checkActiveTransmitters() {
 	$.getJSON("https://local.aa5jc.com/api/transmitting", function (activeNodes) {
 		if (activeNodes.length) {
 			console.log('Active transmitters: ', activeNodes);
@@ -129,6 +130,8 @@ setInterval(async () => {
 
 				if (indexOfActiveNode == -1) {
 					// The node is no longer active, so we set its icon to receiving
+					console.log("Node " + nodeNumber + " is no longer transmitting, updating icon to receiving.");
+
 					const markerName = markerNamePrefix + nodeNumber;
 					window[markerName].setIcon(iconReceiving);
 
@@ -136,23 +139,23 @@ setInterval(async () => {
 					activeTransmittersCache.splice(indexOfActiveNode, 1);
 				}
 			}
-		}
 
-		// Set the icon for each newly active node
-		for (const node of activeNodes) {
-			const nodeNumber = node.name;
-			const markerName = markerNamePrefix + nodeNumber;
-			if (window[markerName]) {
-				// If the marker already exists, update its icon
-				if (!activeTransmittersCache.includes(nodeNumber)) {
-					// If the node is not already in the activeTransmittersCache, add it
-					activeTransmittersCache.push(nodeNumber);
-					window[markerName].setIcon(iconTransmitting);
+			// Set the icon for each newly active node
+			for (const node of activeNodes) {
+				const nodeNumber = node.name;
+				const markerName = markerNamePrefix + nodeNumber;
+				if (window[markerName]) {
+					if (!activeTransmittersCache.includes(nodeNumber)) {
+						// If the node is not already in the activeTransmittersCache, add it
+						console.log("Node " + nodeNumber + " is now transmitting, updating icon to transmitting.");
+						activeTransmittersCache.push(nodeNumber);
+						window[markerName].setIcon(iconTransmitting);
+					}
 				}
 			}
 		}
 	});
-}, howOftenToUpdateKeyedNodes);
+}
 
 // _____ Leaflet Map Functions _____
 
