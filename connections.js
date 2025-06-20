@@ -9,11 +9,16 @@ var howOftenToUpdateKeyedNodes = 3000; // milliseconds
 var iconHeight = 30;
 var iconWidth = 30;
 
+var lineColors = ['#e5cb4f', '#5a92b7', '#93dfff', '#d77074', '#18314c', '#43370d'];
+
 var zoomLevel = 6;
 if (screen.height == "480") {
 	zoomLevel = 5;
 }
 
+// =================================================
+
+var numberOfLinesCreated = 0;
 var nodeCache = {};
 var activeTransmittersCache = [];
 
@@ -121,7 +126,7 @@ function connectNodes(nodeA, nodeB) {
 	const reverseLineName = lineNamePrefix + nodeB.name + "_" + nodeA.name;
 	// Check if the line already exists
 	if (!window[lineName] && !window[reverseLineName]) {
-		window[lineName] = newLine(pointA, pointB, { color: 'blue', weight: 2 });
+		window[lineName] = newLine(pointA, pointB);
 	}
 }
 
@@ -216,7 +221,7 @@ function newLine(pointA, pointB, options = {}) {
 
 	// Draw the line with optional styling
 	const line = L.polyline(latlngs, {
-		color: options.color || 'white',
+		color: options.color || getNextColor(),
 		weight: options.weight || 3,
 		opacity: options.opacity || 0.7,
 		dashArray: options.dashArray || null
@@ -224,4 +229,11 @@ function newLine(pointA, pointB, options = {}) {
 
 	line.addTo(map);
 	return line; // Return the line if you want to manipulate it later
+}
+
+function c {
+	// Cycle through the line colors
+	const color = lineColors[numberOfLinesCreated % lineColors.length];
+	numberOfLinesCreated++;
+	return color;
 }

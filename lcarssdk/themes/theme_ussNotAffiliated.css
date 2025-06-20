@@ -57,8 +57,6 @@
 }
 .bg-6,
 .bg-6 > *:not([class*="bg-"]){
-	/*background-color:#006666;
-	border-color:#006666;	*/
 	background-color: #d5a5d3;
 	border-color: #d5a5d3;
 }
