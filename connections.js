@@ -92,7 +92,7 @@ function AddOrUpdateNode(node) {
         return;
     }
 
-	if (latValid && lonValid) {
+	if (latValid && lonValid && !window[markerName]) {
 		window[markerName] = newMarker(nodeNumber, node.server.location, node.server.latitude, node.server.logitude);
 	}
 	else {
@@ -144,7 +144,7 @@ async function checkActiveTransmitters() {
 			for (const nodeNumber of activeNodes) {
 				const markerName = markerNamePrefix + nodeNumber;
 				if (window[markerName]) {
-					if (!activeTransmittersCache.includes(nodeNumber)) {
+					if (!activeTransmittersCache.indexOf(nodeNumber)) {
 						// If the node is not already in the activeTransmittersCache, add it
 						console.log("Node " + nodeNumber + " is now transmitting, updating icon to transmitting.");
 						activeTransmittersCache.push(nodeNumber);
@@ -157,8 +157,6 @@ async function checkActiveTransmitters() {
 			}
 		}
 		else {
-			console.log('No active transmitters found.');
-
 			// If no active transmitters, set all markers to receiving
 			for (const nodeNumber of activeTransmittersCache) {
 				const markerName = markerNamePrefix + nodeNumber;
