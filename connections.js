@@ -1,5 +1,11 @@
 ﻿console.clear();
 
+var markerNamePrefix = "m";
+var lineNamePrefix = "l";
+
+var howOftenToUpdateNodes = 10000; // milliseconds
+var howOftenToUpdateKeyedNodes = 5000; // milliseconds
+
 var iconHeight = 30;
 var iconWidth = 30;
 
@@ -8,15 +14,13 @@ if (screen.height == "480") {
 	zoomLevel = 5;
 }
 
-var markerNamePrefix = "m";
-var lineNamePrefix = "l";
-
-var dataCache = {};
+var nodeCache = {};
+var activeTransmittersCache = [];
 
 $(function () {
-	//setInterval(function () {
-	loadData();
-	//}, 2000);
+	setInterval(function () {
+		loadData();
+	}, howOftenToUpdateNodes);
 });
 
 function loadData() {
@@ -26,9 +30,9 @@ function loadData() {
 		AddOrUpdateNodes(nodes);
 
 		console.log("Clear old markers that are no longer in the data"); 
-		for (const key in dataCache) {
+		for (const key in nodeCache) {
 			if (!nodes.hasOwnProperty(key)) {
-				const marker = window[markerNamePrefix + dataCache[key].name];
+				const marker = window[markerNamePrefix + nodeCache[key].name];
 				if (marker instanceof L.Marker) {
 					map.removeLayer(marker);
 					delete window[markerName];
@@ -52,12 +56,13 @@ function loadData() {
 		}
 
         // Update the cache with the latest data
-		dataCache = nodes;
+		nodeCache = nodes;
 	});
 }
 
 function AddOrUpdateNodes(nodes) {
 	console.log("Adding or updating nodes...");
+
 	for (const key in nodes) {
 		AddOrUpdateNode(nodes[key]);
 	}
@@ -89,15 +94,6 @@ function AddOrUpdateNode(node) {
 	);
 }
 
-function updateTransmittingMarker() {
-	//// Select icon
-	//if (node.data.keyed) {
-	//	window[markerName].setIcon(iconTransmitting);
-	//} else {
-	//	window[markerName].setIcon(iconReceiving);
-	//}
-}
-
 function connectNodes(nodeA, nodeB) {
 	// Ensure both nodes are valid
 	if (!nodeA || !nodeB) {
@@ -113,6 +109,65 @@ function connectNodes(nodeA, nodeB) {
 		window[lineName] = newLine(pointA, pointB, { color: 'blue', weight: 2 });
 	}
 }
+
+// _____ Load keyed nodes functions _____
+
+async function fetchKeyedNodes() {
+  const res = await fetch('https://stats.allstarlink.org/stats/keyed');
+  const html = await res.text();
+  return parseKeyedNodes(html);
+}
+
+function parseKeyedNodes(html) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+
+  // Assumes each keyed node appears in an <li> under #keyed-list
+  const items = doc.querySelectorAll('#keyed-list li');
+  return Array.from(items).map(li => li.textContent.trim());
+}
+
+async function checkActiveTransmitters(nodes) {
+  const keyedList = await fetchKeyedNodes(); // ['65017', '472351', ...]
+  return nodes.filter(n => keyedList.includes(n.name));
+}
+
+setInterval(async () => {
+  const active = await checkActiveTransmitters(nodeCache);
+  
+  if (active.length) {
+    console.log('Active transmitters: ', active.map(n => n.name));
+
+	// Set the icon for each newly receiving node
+	for (const nodeNumber of activeTransmittersCache) {
+		
+		var indexOfActiveNode = active.indexOf(nodeNumber);
+
+		if (indexOfActiveNode == -1) {
+			// The node is no longer active, so we set its icon to receiving
+			const markerName = markerNamePrefix + nodeNumber;
+			window[markerName].setIcon(iconReceiving);
+
+			// Remove the item from the activeTransmittersCache array
+			activeTransmittersCache.splice(indexOfActiveNode, 1);
+		}
+	}
+
+	// Set the icon for each newly active node
+	for (const node of active) {
+		const nodeNumber = node.name;
+		const markerName = markerNamePrefix + nodeNumber;
+		if (window[markerName]) {
+			// If the marker already exists, update its icon
+			if (!activeTransmittersCache.includes(nodeNumber)) {
+				// If the node is not already in the activeTransmittersCache, add it
+				activeTransmittersCache.push(nodeNumber);
+				window[markerName].setIcon(iconTransmitting);
+			}
+		}
+  }
+}, howOftenToUpdateKeyedNodes);
+
 
 // _____ Leaflet Map Functions _____
 
