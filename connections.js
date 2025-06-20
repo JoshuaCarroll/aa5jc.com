@@ -51,7 +51,7 @@ function loadData() {
         // Draw lines between nodes
 		for (const key in nodes) {
 			// if this node has links, draw them
-			if (nodes[key].data.links) {
+			if (nodes[key] && nodes[key].data && nodes[key].data.links)
 				for (const link of nodes[key].data.links) {
 					const targetNode = nodes[link];
 					if (targetNode) {
