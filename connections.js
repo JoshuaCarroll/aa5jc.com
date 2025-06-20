@@ -128,10 +128,7 @@ async function checkActiveTransmitters() {
 
 			// Set the icon for each newly receiving node
 			for (const nodeNumber of activeTransmittersCache) {
-		
-				var indexOfActiveNode = activeNodes.indexOf(nodeNumber);
-
-				if (indexOfActiveNode == -1) {
+				if (activeNodes.indexOf(nodeNumber) == -1) {
 					// The node is no longer active, so we set its icon to receiving
 					console.log("Node " + nodeNumber + " is no longer transmitting, updating icon to receiving.");
 
@@ -139,13 +136,12 @@ async function checkActiveTransmitters() {
 					window[markerName].setIcon(iconReceiving);
 
 					// Remove the item from the activeTransmittersCache array
-					activeTransmittersCache.splice(indexOfActiveNode, 1);
+					activeTransmittersCache.splice(activeTransmittersCache.indexOf(nodeNumber), 1);
 				}
 			}
 
-			// Set the icon for each newly active node
-			for (const node of activeNodes) {
-				const nodeNumber = node.name;
+			// Set the icon for each newly transmitting node
+			for (const nodeNumber of activeNodes) {
 				const markerName = markerNamePrefix + nodeNumber;
 				if (window[markerName]) {
 					if (!activeTransmittersCache.includes(nodeNumber)) {
@@ -155,6 +151,24 @@ async function checkActiveTransmitters() {
 						window[markerName].setIcon(iconTransmitting);
 					}
 				}
+				else {
+					console.warn("Node " + nodeNumber + " is transmitting but does not have a marker on the map.");
+				}
+			}
+		}
+		else {
+			console.log('No active transmitters found.');
+
+			// If no active transmitters, set all markers to receiving
+			for (const nodeNumber of activeTransmittersCache) {
+				const markerName = markerNamePrefix + nodeNumber;
+				if (window[markerName]) {
+					console.log("Node " + nodeNumber + " is no longer transmitting, updating icon to receiving.");
+					window[markerName].setIcon(iconReceiving);
+				}
+
+				// Remove the item from the activeTransmittersCache array
+				activeTransmittersCache.splice(activeTransmittersCache.indexOf(nodeNumber), 1);
 			}
 		}
 	});
