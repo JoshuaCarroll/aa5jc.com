@@ -231,7 +231,7 @@ function newLine(pointA, pointB, options = {}) {
 	return line; // Return the line if you want to manipulate it later
 }
 
-function c {
+function getNextColor() {
 	// Cycle through the line colors
 	const color = lineColors[numberOfLinesCreated % lineColors.length];
 	numberOfLinesCreated++;
