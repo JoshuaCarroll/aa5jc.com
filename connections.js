@@ -92,11 +92,13 @@ function AddOrUpdateNode(node) {
         return;
     }
 
-	if (latValid && lonValid && !window[markerName]) {
-		window[markerName] = newMarker(nodeNumber, node.server.location, node.server.latitude, node.server.logitude);
+	if (latValid && lonValid) {
+		if (!window[markerName]) {
+			window[markerName] = newMarker(nodeNumber, node.server.location, node.server.latitude, node.server.logitude);
+		}
 	}
 	else {
-		console.warn("Node " + nodeNumber + " has invalid coordinates: (" + node.server.logitude + ", " + node.server.logitude + ")");
+		console.warn("Node " + nodeNumber + " has invalid coordinates: (" + node.server.latitude + ", " + node.server.logitude + ")");
 	}
 
 	$("#tbodyConnections").append(
