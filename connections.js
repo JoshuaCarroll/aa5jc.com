@@ -24,12 +24,12 @@ $(function () {
 });
 
 function loadData() {
-    console.log("Loading data...");
+    console.debug("Loading data...");
 	$.getJSON("https://local.aa5jc.com/api/asl", function (nodes) {
 
 		AddOrUpdateNodes(nodes);
 
-		console.log("Clear old markers that are no longer in the data"); 
+		// Clear old markers that are no longer in the data
 		for (const key in nodeCache) {
 			if (!nodes.hasOwnProperty(key)) {
 				const marker = window[markerNamePrefix + nodeCache[key].name];
@@ -61,8 +61,6 @@ function loadData() {
 }
 
 function AddOrUpdateNodes(nodes) {
-	console.log("Adding or updating nodes...");
-
 	// Clear the table body before adding new rows
 	$("#tbodyConnections").empty();
 
@@ -72,7 +70,7 @@ function AddOrUpdateNodes(nodes) {
 }
 
 function AddOrUpdateNode(node) {
-	console.log("Adding or updating node: " + node.name);
+	console.debug("Adding or updating node: " + node.name);
 
 	const nodeNumber = node.name;
 	const markerName = markerNamePrefix + nodeNumber;
@@ -122,7 +120,7 @@ async function checkActiveTransmitters(nodes) {
 setInterval(async () => {
 	$.getJSON("https://local.aa5jc.com/api/transmitting", function (activeNodes) {
 		if (activeNodes.length) {
-			console.log('Active transmitters: ', activeNodes.map(n => n.name));
+			console.log('Active transmitters: ', activeNodes);
 
 			// Set the icon for each newly receiving node
 			for (const nodeNumber of activeTransmittersCache) {
@@ -184,7 +182,7 @@ var iconTransmitting = L.divIcon({
 });
 
 function newMarker(nodeNumber, city, lat, lon) {
-	console.log("Creating new marker for node: " + nodeNumber + " at " + city + " (" + lat + ", " + lon + ")");
+	console.debug("Creating new marker for node: " + nodeNumber + " at " + city + " (" + lat + ", " + lon + ")");
 	const marker = L.marker([lat, lon], { icon: iconDisconnectedNode }).addTo(map).bindPopup(city + "<br>" + "node " + nodeNumber);
     return marker;
 }
