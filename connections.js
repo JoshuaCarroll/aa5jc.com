@@ -1,4 +1,6 @@
-﻿var iconHeight = 30;
+﻿console.clear();
+
+var iconHeight = 30;
 var iconWidth = 30;
 
 var zoomLevel = 6;
@@ -66,42 +68,41 @@ function loadData() {
 }
 
 function AddOrUpdateNodes(nodes) {
+	console.log("Adding or updating nodes...");
 	for (const key in nodes) {
 		AddOrUpdateNode(nodes[key]);
 	}
 }
 
 function AddOrUpdateNode(node) {
-	const nodeId = node.name;
-	const markerName = "m" + nodeId;
+	console.log("Adding or updating node: " + node.name);
+
+	const nodeNumber = node.name;
+	const markerName = "m" + nodeNumber;
 
 	const latValid = node.server.latitude != null && node.server.latitude != 0;
-	const lonValid = node.server.longitude != null && node.server.longitude != 0;
+	const lonValid = node.server.logitude != null && node.server.logitude != 0;
 
 	// If it's a private node, skip it
-    if (nodeId < 2000) {
+    if (nodeNumber < 2000) {
         return;
     }
 
 	if (latValid && lonValid) {
-		window[markerName] = newMarker(nodeId, node.server.location, node.server.latitude, node.server.longitude);
+		window[markerName] = newMarker(nodeNumber, node.server.location, node.server.latitude, node.server.logitude);
+	}
+	else {
+		console.warn("Node " + nodeNumber + " has invalid coordinates: (" + node.server.logitude + ", " + node.server.logitude + ")");
 	}
 
 	$("#tbodyConnections").append(
-		"<tr id='t" + nodeId + "'><td>" + nodeId + "</td><td>" + node.user_ID + " - " + node.server.location + "</td><td>" + "LINKED" + "</td><td>" + "∞" + "</td></tr>"
+		"<tr id='t" + nodeNumber + "'><td>" + nodeNumber + "</td><td>" + node.user_ID + " - " + node.server.location + "</td><td>" + " " + "</td><td>" + " " + "</td></tr>"
 	);
-
-	//// Select icon
-	//if (node.data.keyed) {
-	//	window[markerName].setIcon(iconTransmitting);
-	//} else {
-	//	window[markerName].setIcon(iconReceiving);
-	//}
 }
 
-function newMarker(node, city, lat, lon) {
-	const marker = L.marker([lat, lon], { icon: iconDisconnectedNode }).addTo(map).bindPopup(city + "<br>" + "node " + node);
-	marker.addTo(map);
+function newMarker(nodeNumber, city, lat, lon) {
+	console.log("Creating new marker for node: " + nodeNumber + " at " + city + " (" + lat + ", " + lon + ")");
+	const marker = L.marker([lat, lon], { icon: iconDisconnectedNode }).addTo(map).bindPopup(city + "<br>" + "node " + nodeNumber);
     return marker;
 }
 
@@ -119,4 +120,13 @@ function newLine(pointA, pointB, options = {}) {
 
 	line.addTo(map);
 	return line; // Return the line if you want to manipulate it later
+}
+
+function updateTransmittingMarker() {
+	//// Select icon
+	//if (node.data.keyed) {
+	//	window[markerName].setIcon(iconTransmitting);
+	//} else {
+	//	window[markerName].setIcon(iconReceiving);
+	//}
 }
