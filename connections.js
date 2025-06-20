@@ -8,6 +8,114 @@ if (screen.height == "480") {
 	zoomLevel = 5;
 }
 
+var markerNamePrefix = "m";
+var lineNamePrefix = "l";
+
+var dataCache = {};
+
+$(function () {
+	//setInterval(function () {
+	loadData();
+	//}, 2000);
+});
+
+function loadData() {
+    console.log("Loading data...");
+	$.getJSON("https://local.aa5jc.com/api/asl", function (nodes) {
+
+		AddOrUpdateNodes(nodes);
+
+		console.log("Clear old markers that are no longer in the data"); 
+		for (const key in dataCache) {
+			if (!nodes.hasOwnProperty(key)) {
+				const marker = window[markerNamePrefix + dataCache[key].name];
+				if (marker instanceof L.Marker) {
+					map.removeLayer(marker);
+					delete window[markerName];
+				}
+			}
+		}
+
+		// Remove polylines that are no longer needed
+
+        // Draw lines between nodes
+		for (const key in nodes) {
+			// if this node has links, draw them
+			if (nodes[key].data.links) {
+				for (const link of nodes[key].data.links) {
+					const targetNode = nodes[link];
+					if (targetNode) {
+						connectNodes(nodes[key], targetNode);
+					}
+				}
+			}
+		}
+
+        // Update the cache with the latest data
+		dataCache = nodes;
+	});
+}
+
+function AddOrUpdateNodes(nodes) {
+	console.log("Adding or updating nodes...");
+	for (const key in nodes) {
+		AddOrUpdateNode(nodes[key]);
+	}
+}
+
+function AddOrUpdateNode(node) {
+	console.log("Adding or updating node: " + node.name);
+
+	const nodeNumber = node.name;
+	const markerName = markerNamePrefix + nodeNumber;
+
+	const latValid = node.server.latitude != null && node.server.latitude != 0;
+	const lonValid = node.server.logitude != null && node.server.logitude != 0;
+
+	// If it's a private node, skip it
+    if (nodeNumber < 2000) {
+        return;
+    }
+
+	if (latValid && lonValid) {
+		window[markerName] = newMarker(nodeNumber, node.server.location, node.server.latitude, node.server.logitude);
+	}
+	else {
+		console.warn("Node " + nodeNumber + " has invalid coordinates: (" + node.server.logitude + ", " + node.server.logitude + ")");
+	}
+
+	$("#tbodyConnections").append(
+		"<tr id='t" + nodeNumber + "'><td>" + nodeNumber + "</td><td>" + node.user_ID + " - " + node.server.location + "</td><td>" + " " + "</td><td>" + " " + "</td></tr>"
+	);
+}
+
+function updateTransmittingMarker() {
+	//// Select icon
+	//if (node.data.keyed) {
+	//	window[markerName].setIcon(iconTransmitting);
+	//} else {
+	//	window[markerName].setIcon(iconReceiving);
+	//}
+}
+
+function connectNodes(nodeA, nodeB) {
+	// Ensure both nodes are valid
+	if (!nodeA || !nodeB) {
+		console.error("Invalid nodes provided for connection.");
+		return;
+	}
+	const pointA = [nodeA.server.latitude, nodeA.server.logitude];
+	const pointB = [nodeB.server.latitude, nodeB.server.logitude];
+	const lineName = lineNamePrefix + nodeA.name + "_" + nodeB.name;
+	const reverseLineName = lineNamePrefix + nodeB.name + "_" + nodeA.name;
+	// Check if the line already exists
+	if (!window[lineName] && !window[reverseLineName]) {
+		window[lineName] = newLine(pointA, pointB, { color: 'blue', weight: 2 });
+	}
+}
+
+// _____ Leaflet Map Functions _____
+
 var map = L.map("map").setView([34.7, -92.5], zoomLevel);
 
 var tiles = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -33,73 +141,6 @@ var iconTransmitting = L.divIcon({
 	popupAnchor: [0, -1 * iconHeight]
 });
 
-var dataCache = {};
-
-$(function () {
-	//setInterval(function () {
-	loadData();
-	//}, 2000);
-});
-
-function loadData() {
-    console.log("Loading data...");
-	$.getJSON("https://local.aa5jc.com/api/asl", function (nodes) {
-
-		AddOrUpdateNodes(nodes);
-
-  //      console.log("Clear old markers that are no longer in the data"); 
-		//for (const key in dataCache) {
-		//	if (!nodes.hasOwnProperty(key)) {
-		//		const marker = window["m" + dataCache[key].name];
-		//		if (marker instanceof L.Marker) {
-		//			map.removeLayer(marker);
-		//			delete window[markerName];
-		//		}
-		//	}
-		//}
-
-		// Remove polylines that are no longer needed
-
-        // Draw lines between nodes
-
-        // Update the cache with the latest data
-		dataCache = nodes;
-	});
-}
-
-function AddOrUpdateNodes(nodes) {
-	console.log("Adding or updating nodes...");
-	for (const key in nodes) {
-		AddOrUpdateNode(nodes[key]);
-	}
-}
-
-function AddOrUpdateNode(node) {
-	console.log("Adding or updating node: " + node.name);
-
-	const nodeNumber = node.name;
-	const markerName = "m" + nodeNumber;
-
-	const latValid = node.server.latitude != null && node.server.latitude != 0;
-	const lonValid = node.server.logitude != null && node.server.logitude != 0;
-
-	// If it's a private node, skip it
-    if (nodeNumber < 2000) {
-        return;
-    }
-
-	if (latValid && lonValid) {
-		window[markerName] = newMarker(nodeNumber, node.server.location, node.server.latitude, node.server.logitude);
-	}
-	else {
-		console.warn("Node " + nodeNumber + " has invalid coordinates: (" + node.server.logitude + ", " + node.server.logitude + ")");
-	}
-
-	$("#tbodyConnections").append(
-		"<tr id='t" + nodeNumber + "'><td>" + nodeNumber + "</td><td>" + node.user_ID + " - " + node.server.location + "</td><td>" + " " + "</td><td>" + " " + "</td></tr>"
-	);
-}
-
 function newMarker(nodeNumber, city, lat, lon) {
 	console.log("Creating new marker for node: " + nodeNumber + " at " + city + " (" + lat + ", " + lon + ")");
 	const marker = L.marker([lat, lon], { icon: iconDisconnectedNode }).addTo(map).bindPopup(city + "<br>" + "node " + nodeNumber);
@@ -120,13 +161,4 @@ function newLine(pointA, pointB, options = {}) {
 
 	line.addTo(map);
 	return line; // Return the line if you want to manipulate it later
-}
-
-function updateTransmittingMarker() {
-	//// Select icon
-	//if (node.data.keyed) {
-	//	window[markerName].setIcon(iconTransmitting);
-	//} else {
-	//	window[markerName].setIcon(iconReceiving);
-	//}
 }
