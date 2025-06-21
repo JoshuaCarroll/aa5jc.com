@@ -155,7 +155,9 @@ async function checkActiveTransmitters() {
 				console.log("Node " + nodeNumber + " is no longer transmitting, updating icon to receiving.");
 
 				const markerName = markerNamePrefix + nodeNumber;
-				mapObjects.markers.get(markerName).setIcon(iconReceiving);
+				if (mapObjects.markers.get(markerName)) {
+					mapObjects.markers.get(markerName).setIcon(iconReceiving);
+				}
 				
 				// Remove the item from the activeTransmittersCache array
 				activeTransmittersCache.splice(activeTransmittersCache.indexOf(nodeNumber), 1);
