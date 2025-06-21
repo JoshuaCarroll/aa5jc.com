@@ -23,10 +23,11 @@ jobs:
       - name: Generate version timestamp
         run: echo "{\"version\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" > version.json
 
-      - name: Commit version.json
+      - name: Push version.json
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add version.json
           git commit -m "Update version.json" || echo "No changes to commit"
-          git push
+          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.git
+
