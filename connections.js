@@ -133,31 +133,31 @@ function connectNodes(nodeA, nodeB) {
 // _____ Keyed node functions _____
 async function checkActiveTransmitters() {
 	$.getJSON("https://local.aa5jc.com/api/transmitting", function (activeNodes) {
+
+		// Set the icon for each newly receiving node
+		for (const nodeNumber of activeTransmittersCache) {
+			if (activeNodes.indexOf(nodeNumber) == -1) {
+				// The node is no longer transmitting, so we set its icon to receiving
+				console.log("Node " + nodeNumber + " is no longer transmitting, updating icon to receiving.");
+
+				const markerName = markerNamePrefix + nodeNumber;
+				window[markerName].setIcon(iconReceiving);
+
+				// Remove the item from the activeTransmittersCache array
+				//activeTransmittersCache.splice(activeTransmittersCache.indexOf(nodeNumber), 1);
+			}
+		}
+
 		if (activeNodes.length) {
 			console.log('Active transmitters: ', activeNodes);
-
-			// Set the icon for each newly receiving node
-			for (const nodeNumber of activeTransmittersCache) {
-				if (activeNodes.indexOf(nodeNumber) == -1) {
-					// The node is no longer active, so we set its icon to receiving
-					console.log("Node " + nodeNumber + " is no longer transmitting, updating icon to receiving.");
-
-					const markerName = markerNamePrefix + nodeNumber;
-					window[markerName].setIcon(iconReceiving);
-
-					// Remove the item from the activeTransmittersCache array
-					activeTransmittersCache.splice(activeTransmittersCache.indexOf(nodeNumber), 1);
-				}
-			}
 
 			// Set the icon for each newly transmitting node
 			for (const nodeNumber of activeNodes) {
 				const markerName = markerNamePrefix + nodeNumber;
-				if (window[markerName]) {
-					if (!activeTransmittersCache.indexOf(nodeNumber)) {
+				if (window[markerName]) { // Check if the marker exists
+					if (activeTransmittersCache.indexOf(nodeNumber) != -1) {
 						// If the node is not already in the activeTransmittersCache, add it
 						console.log("Node " + nodeNumber + " is now transmitting, updating icon to transmitting.");
-						activeTransmittersCache.push(nodeNumber);
 						window[markerName].setIcon(iconTransmitting);
 					}
 				}
@@ -166,19 +166,8 @@ async function checkActiveTransmitters() {
 				}
 			}
 		}
-		else {
-			// If no active transmitters, set all markers to receiving
-			for (const nodeNumber of activeTransmittersCache) {
-				const markerName = markerNamePrefix + nodeNumber;
-				if (window[markerName]) {
-					console.log("Node " + nodeNumber + " is no longer transmitting, updating icon to receiving.");
-					window[markerName].setIcon(iconReceiving);
-				}
 
-				// Remove the item from the activeTransmittersCache array
-				activeTransmittersCache.splice(activeTransmittersCache.indexOf(nodeNumber), 1);
-			}
-		}
+		activeTransmittersCache = activeNodes; // Update the cache with the latest active nodes
 	});
 }
 
