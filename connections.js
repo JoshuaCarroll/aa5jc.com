@@ -1,29 +1,35 @@
 ﻿console.clear();
 
 var markerNamePrefix = "m";
-var lineNamePrefix = "l";
+var lineNamePrefix = "link-";
 
 var howOftenToUpdateNodes = 10000; // milliseconds
-var howOftenToUpdateKeyedNodes = 3000; // milliseconds
+var howOftenToUpdateKeyedNodes = 2000; // milliseconds
 
 var iconHeight = 30;
 var iconWidth = 30;
 
 var lineColors = ['#F7BD5A','#FFCC99','#FFFF33','#FFFF9C','#CD6363','#FF9C00','#CC99CC','#ff9f63','#646DCC','#9C9CFF','#FF9C00','#3399FF','#99CCFF','#ED884C','#FFFFCC','#B1957A','#F5ED00','#DDFFFF'];
 
-var zoomLevel = 6;
+var mapZoomLevel = 6;
 if (screen.height == "480") {
 	zoomLevel = 5;
 }
 
-// =================================================
+var mapCenter = [34.7, -92.5]; // Default to Arkansas
+
+// ____________________________________________________________________________________________________________
 
 var numberOfLinesCreated = 0;
 var nodeCache = {};
 var activeTransmittersCache = [];
+const mapObjects = {
+    markers: new Map(),
+    lines: new Map()
+};
 
 $(function () {
-	loadData();
+	LoadData();
 
 	setInterval(function () {
 		loadData();
@@ -34,8 +40,8 @@ $(function () {
 	}, howOftenToUpdateKeyedNodes);
 });
 
-function loadData() {
-    console.debug("Loading data...");
+
+function LoadData() {
 	$.getJSON("https://local.aa5jc.com/api/asl", function (nodes) {
 
 		AddOrUpdateNodes(nodes);
@@ -43,14 +49,8 @@ function loadData() {
 		// Clear old markers that are no longer in the data
 		for (const key in nodeCache) {
 			if (!nodes.hasOwnProperty(key)) {
-				const markerName = markerNamePrefix + nodeCache[key].name;
-				const marker = window[markerName];
-				if (marker instanceof L.Marker) {
-					map.removeLayer(marker);
-				}
-				if (window[markerName]) {
-					delete window[markerName];
-				}
+				nodeCache[key].name;
+				
 			}
 		}
 
@@ -101,8 +101,8 @@ function AddOrUpdateNode(node) {
     }
 
 	if (latValid && lonValid) {
-		if (!window[markerName]) {
-			window[markerName] = newMarker(nodeNumber, node.server.location, node.server.latitude, node.server.logitude);
+		if (!mapObjects.markers.get(markerName)) {
+			mapObjects.markers.set(markerName, newMarker(nodeNumber, node.server.location, node.server.latitude, node.server.logitude));
 		}
 	}
 	else {
@@ -114,19 +114,36 @@ function AddOrUpdateNode(node) {
 	);
 }
 
+function removeNode(nodeNumber) {
+	const markerName = markerNamePrefix + nodeNumber;
+	const marker = mapObjects.markers.get(markerName);
+
+	if (marker) {
+		if (marker instanceof L.Marker) {
+			map.removeLayer(marker);
+		}
+
+		mapObjects.markers.delete(markerName);
+	}
+	
+	// Remove any lines associated with this node
+	deleteLines(nodeNumber);
+}
+
 function connectNodes(nodeA, nodeB) {
 	// Ensure both nodes are valid
 	if (!nodeA || !nodeB) {
-		console.error("Invalid nodes provided for connection.");
+		console.warn("Invalid nodes provided for connection.");
 		return;
 	}
+
 	const pointA = [nodeA.server.latitude, nodeA.server.logitude];
 	const pointB = [nodeB.server.latitude, nodeB.server.logitude];
-	const lineName = lineNamePrefix + nodeA.name + "_" + nodeB.name;
-	const reverseLineName = lineNamePrefix + nodeB.name + "_" + nodeA.name;
+	const lineName = getLineKey(nodeA.name, nodeB.name);
+
 	// Check if the line already exists
-	if (!window[lineName] && !window[reverseLineName]) {
-		window[lineName] = newLine(pointA, pointB);
+	if (!mapObjects.lines.get(lineName)) {
+		newLine(lineName, pointA, pointB);
 	}
 }
 
@@ -141,10 +158,10 @@ async function checkActiveTransmitters() {
 				console.log("Node " + nodeNumber + " is no longer transmitting, updating icon to receiving.");
 
 				const markerName = markerNamePrefix + nodeNumber;
-				window[markerName].setIcon(iconReceiving);
-
+				mapObjects.markers.get(markerName).setIcon(iconReceiving);
+				
 				// Remove the item from the activeTransmittersCache array
-				//activeTransmittersCache.splice(activeTransmittersCache.indexOf(nodeNumber), 1);
+				activeTransmittersCache.splice(activeTransmittersCache.indexOf(nodeNumber), 1);
 			}
 		}
 
@@ -154,11 +171,11 @@ async function checkActiveTransmitters() {
 			// Set the icon for each newly transmitting node
 			for (const nodeNumber of activeNodes) {
 				const markerName = markerNamePrefix + nodeNumber;
-				if (window[markerName]) { // Check if the marker exists
+				if (mapObjects.markers.get(markerName)) { // Check if the marker exists
 					if (activeTransmittersCache.indexOf(nodeNumber) != -1) {
 						// If the node is not already in the activeTransmittersCache, add it
 						console.log("Node " + nodeNumber + " is now transmitting, updating icon to transmitting.");
-						window[markerName].setIcon(iconTransmitting);
+						mapObjects.markers.get(markerName).setIcon(iconTransmitting);
 					}
 				}
 				else {
@@ -171,9 +188,9 @@ async function checkActiveTransmitters() {
 	});
 }
 
-// _____ Leaflet Map Functions _____
+// _____ Leaflet Map Functions ____________________________________________________________________________________________________________
 
-var map = L.map("map").setView([34.7, -92.5], zoomLevel);
+var map = L.map("map").setView(mapCenter, mapZoomLevel);
 
 var tiles = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
 	maxZoom: 19,
@@ -204,7 +221,7 @@ function newMarker(nodeNumber, city, lat, lon) {
     return marker;
 }
 
-function newLine(pointA, pointB, options = {}) {
+function newLine(lineKey, pointA, pointB, options = {}) {
 	// Ensure pointA and pointB are arrays in [lat, lng] format
 	const latlngs = [pointA, pointB];
 
@@ -215,8 +232,10 @@ function newLine(pointA, pointB, options = {}) {
 		opacity: options.opacity || 0.7,
 		dashArray: options.dashArray || null
 	});
-
 	line.addTo(map);
+
+	mapObjects.lines.set(lineKey, line);
+
 	return line; // Return the line if you want to manipulate it later
 }
 
@@ -225,4 +244,17 @@ function getNextColor() {
 	const color = lineColors[numberOfLinesCreated % lineColors.length];
 	numberOfLinesCreated++;
 	return color;
+}
+
+function deleteLines(nodeNumber) {
+	for (const [key, line] of mapObjects.lines.entries()) {
+		if (key.includes('-' + nodeNumber + '-')) {
+			map.removeLayer(line);
+			mapObjects.lines.delete(key);
+		}
+	}
+}
+
+function getLineKey(a, b) {
+    return '-' + [a, b].sort().join('-') + '-'; // e.g., "-472350-65017-"
 }
