@@ -1,8 +1,11 @@
-name: Update version.json
+name: Update version.json and Deploy to GitHub Pages
 
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'version.json'  # Ignore changes to version.json to prevent infinite loops
+      - '.github/workflows/setVersion.yml'  # Ignore changes to this workflow file
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
