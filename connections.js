@@ -9,7 +9,7 @@ var howOftenToUpdateKeyedNodes = 3000; // milliseconds
 var iconHeight = 30;
 var iconWidth = 30;
 
-var lineColors = ['#e5cb4f', '#5a92b7', '#93dfff', '#d77074', '#18314c', '#43370d'];
+var lineColors = ['#F7BD5A','#FFCC99','#FFFF33','#FFFF9C','#CD6363','#FF9C00','#CC99CC','#ff9f63','#646DCC','#9C9CFF','#FF9C00','#3399FF','#99CCFF','#ED884C','#FFFFCC','#B1957A','#F5ED00','#DDFFFF'];
 
 var zoomLevel = 6;
 if (screen.height == "480") {
