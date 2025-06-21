@@ -42,7 +42,7 @@ $(function () {
 
 
 function loadData() {
-	$.getJSON("https://local.aa5jc.com/api/asl", function (nodes) {
+	$.getJSON("https://local.aa5jc.com/api/asl?node=499600", function (nodes) {
 
 		addOrUpdateNodes(nodes);
 
