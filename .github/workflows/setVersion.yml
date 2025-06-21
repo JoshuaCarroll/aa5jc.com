@@ -12,6 +12,14 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
+      - name: List build folder contents
+        run: |
+            echo "=== Root ==="
+            ls -al
+            echo "=== _site ==="
+            ls -al _site || true
+            echo "=== dist ==="
+            ls -al dist || true
       - name: Generate version timestamp
         run: echo "{\"version\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" > version.json
 
