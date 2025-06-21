@@ -41,20 +41,17 @@ $(function () {
 });
 
 
-function LoadData() {
+function loadData() {
 	$.getJSON("https://local.aa5jc.com/api/asl", function (nodes) {
 
-		AddOrUpdateNodes(nodes);
+		addOrUpdateNodes(nodes);
 
 		// Clear old markers that are no longer in the data
 		for (const key in nodeCache) {
 			if (!nodes.hasOwnProperty(key)) {
-				nodeCache[key].name;
-				
+				removeNode(key);
 			}
 		}
-
-		// Remove polylines that are no longer needed
 
         // Draw lines between nodes
 		for (const key in nodes) {
@@ -74,16 +71,16 @@ function LoadData() {
 	});
 }
 
-function AddOrUpdateNodes(nodes) {
+function addOrUpdateNodes(nodes) {
 	// Clear the table body before adding new rows
 	$("#tbodyConnections").empty();
 
 	for (const key in nodes) {
-		AddOrUpdateNode(nodes[key]);
+		addOrUpdateNode(nodes[key]);
 	}
 }
 
-function AddOrUpdateNode(node) {
+function addOrUpdateNode(node) {
 	if (!node || !node.server || !node.server.location || !node.server.latitude || !node.server.logitude) 
 		return; // Skip if node data is incomplete
 
