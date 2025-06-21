@@ -1,4 +1,4 @@
-name: Update version.txt on push
+name: Update version.json
 
 on:
   push:
@@ -7,20 +7,19 @@ on:
 jobs:
   update-version:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Generate version timestamp
-        run: echo "{\"version\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" > version.json
+      - name: Set version
+        run: echo "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > version.json
 
-      - name: Push version.json
+      - name: Commit and Push version.json
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add version.json
           git commit -m "Update version.json" || echo "No changes to commit"
-          git push "https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.git"
-
-
+          git push https://x-access-token:${GH_PAT}@github.com/${{ github.repository }}.git HEAD:main
