@@ -29,7 +29,7 @@ const mapObjects = {
 };
 
 $(function () {
-	LoadData();
+	loadData();
 
 	setInterval(function () {
 		loadData();
