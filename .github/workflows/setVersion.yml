@@ -15,10 +15,10 @@ jobs:
       - name: Generate version timestamp
         run: echo "{\"version\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" > version.json
 
-      - name: Commit version.txt
+      - name: Commit version.json
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git add version.txt
-          git commit -m "Update version.txt" || echo "No changes to commit"
+          git add version.json
+          git commit -m "Update version.json" || echo "No changes to commit"
           git push
