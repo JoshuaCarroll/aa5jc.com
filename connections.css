@@ -1,5 +1,5 @@
 * {
-    margin 0;
+    margin: 0;
     padding: 0;
 }
 
@@ -8,6 +8,13 @@ body {
     color: #fff;
     font-family: Arial, sans-serif;
     overflow: hidden;
+}
+
+#divLoading {
+    padding: 20px;
+    background-color: rgba(112, 95, 48, 0.7);
+    color: #fff;
+    font-size: 30px;
 }
 
 #map {
@@ -24,7 +31,6 @@ body {
         height: 30px !important;
         width: 30px !important;
         background-size: 30px 30px;
-        /*background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAE5QTFRFAAAAgYGBnJycwMDA4+Pj+vr6mpqa5ubm////gICAtLS0tbW19/f3oqKig4ODg4ODwMDAm5ub/v7+mZmZtLS0+fn5z8/PnJyc7Ozsq6urw9MykgAAABp0Uk5TAA6X5Pv/kPz/BNPU/6obHeOW/4/S//GZ/cJ8gAbKAAAA1klEQVR4nO3Wyw6DIBQEUHnptQqt1uf//2ghVdSyGkgaF8wKF3MCBIhFcecwLqRSUnAW1y8r2lKVEfX6Qac0NQw0dEmD9su92WpjdEsEroL59Wv3qe0+YDvJ/dyN+zR2wCFAXIGnHQgIkPS7BJIQoDywbyKpSMAHA2QIYEsQIfCCAB4CHQQcB2kPeJCOo7ylf2P94DINaL+oz0I/4Nf58qDA8//GPmmuLrrIJ83FAfHtDGQgAxnIQAYykIFbAiPRmARMRFMSMBPNSQBbloR/PJd1Tev/IR+Kcg/WCO6HiAAAAABJRU5ErkJggg==);*/
         background-image: url("/icons/antenna-xmit-1.png");
     }
 
@@ -107,6 +113,13 @@ body {
             background-color: rgba(255,255,255,0.1)
         }
 
+.center-screen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 100vh;
+}
 
 /* DARK MODE */
 .leaflet-layer,
