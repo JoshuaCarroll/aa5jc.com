@@ -69,7 +69,7 @@ function loadData() {
         // Update the cache with the latest data
 		nodeCache = nodes;
 
-		$("#divLoading").hide();
+		$("#divLoadingContainer").hide();
 	});
 }
 
