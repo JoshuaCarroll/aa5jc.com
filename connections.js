@@ -109,7 +109,7 @@ function addOrUpdateNode(node) {
 	}
 
 	$("#tbodyConnections").append(
-		"<tr id='t" + nodeNumber + "'><td>" + nodeNumber + "</td><td>" + node.user_ID + " - " + node.server.location + "</td><td>" + " " + "</td><td>" + " " + "</td></tr>"
+		"<tr id='t" + nodeNumber + "'><td><a href='https://stats.allstarlink.org/stats/" + nodeNumber + "' target='_blank'>" + nodeNumber + "</a></td><td><a href='https://www.qrz.com/db/" + node.user_ID + "'"> + node.user_ID + "</a></td><td>" + node.server.location + "</td></tr>"
 	);
 }
 
