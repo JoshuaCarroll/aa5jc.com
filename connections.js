@@ -42,7 +42,7 @@ $(function () {
 
 
 function loadData() {
-	$.getJSON("https://local.aa5jc.com/api/asl?node=499600", function (nodes) {
+	$.getJSON("https://local.aa5jc.com/api/asl", function (nodes) {
 
 		addOrUpdateNodes(nodes);
 
@@ -109,7 +109,11 @@ function addOrUpdateNode(node) {
 	}
 
 	$("#tbodyConnections").append(
-		"<tr id='t" + nodeNumber + "'><td><a href='https://stats.allstarlink.org/stats/" + nodeNumber + "' target='_blank'>" + nodeNumber + "</a></td><td><a href='https://www.qrz.com/db/" + node.user_ID + "'"> + node.user_ID + "</a></td><td>" + node.server.location + "</td></tr>"
+		"<tr id='t" + nodeNumber + "'>"
+		+ "  <td><a href='https://stats.allstarlink.org/stats/" + nodeNumber + "' target='_blank'>" + nodeNumber + "</a></td>"
+		+ "  <td><a href='https://www.qrz.com/db/" + node.user_ID + "'>" + node.user_ID + "</a></td>"
+		+ "  <td>" + node.server.location + "</td>"
+		+ "</tr>"
 	);
 }
 
@@ -132,7 +136,6 @@ function removeNode(nodeNumber) {
 function connectNodes(nodeA, nodeB) {
 	// Ensure both nodes are valid
 	if (!nodeA || !nodeA.server || !nodeB || !nodeB.server) {
-		console.warn("Invalid nodes provided for connection.");
 		return;
 	}
 
@@ -154,7 +157,7 @@ async function checkActiveTransmitters() {
 		for (const nodeNumber of activeTransmittersCache) {
 			if (activeNodes.indexOf(nodeNumber) == -1) {
 				// The node is no longer transmitting, so we set its icon to receiving
-				console.log("Node " + nodeNumber + " is no longer transmitting, updating icon to receiving.");
+				console.debug("Node " + nodeNumber + " is no longer transmitting, updating icon to receiving.");
 
 				const markerName = markerNamePrefix + nodeNumber;
 				if (mapObjects.markers.get(markerName)) {
@@ -167,7 +170,7 @@ async function checkActiveTransmitters() {
 		}
 
 		if (activeNodes.length) {
-			console.log('Active transmitters: ', activeNodes);
+			console.debug('Active transmitters: ', activeNodes);
 
 			// Set the icon for each newly transmitting node
 			for (const nodeNumber of activeNodes) {
