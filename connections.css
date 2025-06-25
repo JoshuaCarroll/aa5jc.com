@@ -112,12 +112,11 @@ body {
 }
 
     #divConnections a {
-        color: #5252f7;
+        color: #5566FF;
         text-decoration: none;
     }
 
     #divConnections a:hover {
-        color: #5252f7;
         text-decoration: underline;
     }
 
@@ -139,22 +138,22 @@ body {
         }
 
         #divConnections table tr td:nth-of-type(1) {
-            width: 60px;
+            width: 70px;
             overflow: hidden;
         }
 
         #divConnections table tr td:nth-of-type(2) {
-            width: 330px;
+            width: 100px;
             overflow: hidden;
         }
 
         #divConnections table tr td:nth-of-type(3) {
-            width: 90px;
+            width: 200px;
             overflow: hidden;
         }
 
         #divConnections table tr td:nth-of-type(4) {
-            width: 90px;
+            width: 200px;
             overflow: hidden;
         }
 
