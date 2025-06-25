@@ -131,7 +131,7 @@ function removeNode(nodeNumber) {
 
 function connectNodes(nodeA, nodeB) {
 	// Ensure both nodes are valid
-	if (!nodeA || !nodeB) {
+	if (!nodeA || !nodeA.server || !nodeB || !nodeB.server) {
 		console.warn("Invalid nodes provided for connection.");
 		return;
 	}
