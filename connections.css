@@ -92,14 +92,45 @@ body {
     }
 }
 
+@keyframes tableTransmitting {
+    0% {
+        background-color: #ffeecc;
+    }
+
+    50% {
+        background-color: #ffaa44;
+    }
+
+    100% {
+        background-color: #ffeecc;
+    }
+}
+
 #divConnections {
     float: left;
     margin-left: 5px;
 }
 
+    #divConnections a {
+        color: #5252f7;
+        text-decoration: none;
+    }
+
+    #divConnections a:hover {
+        color: #5252f7;
+        text-decoration: underline;
+    }
+
     #divConnections table {
         border-collapse: collapse;
         width: 100%;
+    }
+
+    #divConnections .cell-transmitting {
+        opacity: 1.0;
+        animation-name: transmitting;
+        animation-duration: 1s;
+        animation-iteration-count: infinite;
     }
 
         #divConnections table td {

@@ -1,6 +1,7 @@
 ﻿console.clear();
 
 var markerNamePrefix = "m";
+var tableRowNamePrefix = "t";
 var lineNamePrefix = "link-";
 
 var howOftenToUpdateNodes = 10000; // milliseconds
@@ -108,11 +109,14 @@ function addOrUpdateNode(node) {
 		console.warn("Node " + nodeNumber + " has invalid coordinates: (" + node.server.latitude + ", " + node.server.logitude + ")");
 	}
 
+	var nodeTone = node.node_tone != "" ? " (" + node.node_tone + ")" : "";
+
 	$("#tbodyConnections").append(
-		"<tr id='t" + nodeNumber + "'>"
+		"<tr id='" + tableRowNamePrefix + nodeNumber + "'>"
 		+ "  <td><a href='https://stats.allstarlink.org/stats/" + nodeNumber + "' target='_blank'>" + nodeNumber + "</a></td>"
-		+ "  <td><a href='https://www.qrz.com/db/" + node.user_ID + "'>" + node.user_ID + "</a></td>"
+		+ "  <td><a href='https://www.qrz.com/db/" + node.user_ID + "' target='_blank'>" + node.user_ID + "</a></td>"
 		+ "  <td>" + node.server.location + "</td>"
+		+ "  <td>" + node.node_frequency + nodeTone + "</td>"
 		+ "</tr>"
 	);
 }
@@ -162,6 +166,7 @@ async function checkActiveTransmitters() {
 				const markerName = markerNamePrefix + nodeNumber;
 				if (mapObjects.markers.get(markerName)) {
 					mapObjects.markers.get(markerName).setIcon(iconReceiving);
+					$("#" + tableRowNamePrefix + nodeNumber).removeClass("cell-transmitting");
 				}
 				
 				// Remove the item from the activeTransmittersCache array
@@ -180,6 +185,7 @@ async function checkActiveTransmitters() {
 						// If the node is not already in the activeTransmittersCache, add it
 						console.log("Node " + nodeNumber + " is now transmitting, updating icon to transmitting.");
 						mapObjects.markers.get(markerName).setIcon(iconTransmitting);
+						$("#" + tableRowNamePrefix + nodeNumber).addClass("cell-transmitting");
 					}
 				}
 				else {
