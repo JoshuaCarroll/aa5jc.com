@@ -139,7 +139,7 @@ body {
 
     #divConnections .cell-transmitting td {
         opacity: 1.0;
-        animation-name: transmitting;
+        animation-name: tableTransmitting;
         animation-duration: 2s;
         animation-iteration-count: infinite;
     }
