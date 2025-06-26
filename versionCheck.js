@@ -9,7 +9,7 @@ async function checkForUpdates() {
     if (!currentVersion) {
       currentVersion = data.version;
     } else if (data.version !== currentVersion) {
-      if (prompt(`A new version (${data.version}) is available. Do you want to reload the page?`)) {
+      if (confirm(`A new version is available (${data.version}). Is it OK to reload the page?`)) {
         location.reload(true); // Force full reload
       }
     }
@@ -21,5 +21,5 @@ async function checkForUpdates() {
 // Check every 10 seconds
 setInterval(checkForUpdates, 10000);
 
-// Optionally run once on page load
+// Run once on page load
 checkForUpdates();

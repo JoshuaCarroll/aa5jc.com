@@ -14,7 +14,7 @@ var lineColors = ['#F7BD5A','#FFCC99','#FFFF33','#FFFF9C','#CD6363','#FF9C00','#
 
 var mapZoomLevel = 6;
 if (screen.height == "480") {
-	zoomLevel = 5;
+	zoomLevel = 7;
 }
 
 var mapCenter = [34.7, -92.5]; // Default to Arkansas

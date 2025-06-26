@@ -8,6 +8,8 @@ body {
     color: #fff;
     font-family: Arial, sans-serif;
     overflow: hidden;
+    padding-left: 15px;
+    padding-top: 10px;
 }
 
 #divLoadingContainer {
@@ -36,8 +38,8 @@ body {
 }
 
 #map {
-    height: 780px;
-    width: 700px;
+    height: 740px;
+    width: 880px;
     margin-top: 10px;
     margin-right: 10px;
     margin-bottom: 10px;
@@ -116,9 +118,9 @@ body {
         text-decoration: none;
     }
 
-    #divConnections a:hover {
-        text-decoration: underline;
-    }
+        #divConnections a:hover {
+            text-decoration: underline;
+        }
 
     #divConnections table {
         border-collapse: collapse;
@@ -132,34 +134,34 @@ body {
         animation-iteration-count: infinite;
     }
 
-        #divConnections table td {
-            border: solid 1px #444;
-            padding: 1px;
-        }
+    #divConnections table td {
+        border: solid 1px #444;
+        padding: 1px;
+    }
 
-        #divConnections table tr td:nth-of-type(1) {
-            width: 70px;
-            overflow: hidden;
-        }
+    #divConnections table tr td:nth-of-type(1) {
+        width: 70px;
+        overflow: hidden;
+    }
 
-        #divConnections table tr td:nth-of-type(2) {
-            width: 100px;
-            overflow: hidden;
-        }
+    #divConnections table tr td:nth-of-type(2) {
+        width: 100px;
+        overflow: hidden;
+    }
 
-        #divConnections table tr td:nth-of-type(3) {
-            width: 200px;
-            overflow: hidden;
-        }
+    #divConnections table tr td:nth-of-type(3) {
+        width: 200px;
+        overflow: hidden;
+    }
 
-        #divConnections table tr td:nth-of-type(4) {
-            width: 350px;
-            overflow: hidden;
-        }
+    #divConnections table tr td:nth-of-type(4) {
+        width: 350px;
+        overflow: hidden;
+    }
 
-        #divConnections table tr:nth-of-type(2n+1) {
-            background-color: rgba(255,255,255,0.1)
-        }
+    #divConnections table tr:nth-of-type(2n+1) {
+        background-color: rgba(255,255,255,0.1)
+    }
 
 /* DARK MODE */
 .leaflet-layer,
