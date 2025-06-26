@@ -166,6 +166,7 @@ function SetNodeReceiving(nodeNumber) {
 }
 
 function SetNodeTransmitting(nodeNumber) {
+	const markerName = markerNamePrefix + nodeNumber;
 	mapObjects.markers.get(markerName).setIcon(iconTransmitting);
 	$("#" + tableRowNamePrefix + nodeNumber).addClass("cell-transmitting");
 }
