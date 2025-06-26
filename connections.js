@@ -4,8 +4,8 @@ var markerNamePrefix = "m";
 var tableRowNamePrefix = "t";
 var lineNamePrefix = "link-";
 
-var howOftenToUpdateNodes = 10000; // milliseconds
-var howOftenToUpdateKeyedNodes = 2000; // milliseconds
+var howOftenToUpdateNodes = 30000; // milliseconds
+var howOftenToUpdateKeyedNodes = 4000; // milliseconds
 
 var iconHeight = 30;
 var iconWidth = 30;
