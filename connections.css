@@ -137,7 +137,7 @@ body {
         width: 100%;
     }
 
-    #divConnections .cell-transmitting {
+    #divConnections .cell-transmitting td {
         opacity: 1.0;
         animation-name: transmitting;
         animation-duration: 2s;
