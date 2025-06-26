@@ -9,15 +9,16 @@ async function checkForUpdates() {
     if (!currentVersion) {
       currentVersion = data.version;
     } else if (data.version !== currentVersion) {
-      console.log("New version detected, refreshing...");
-      location.reload(true); // Force full reload
+      if (prompt(`A new version (${data.version}) is available. Do you want to reload the page?`)) {
+        location.reload(true); // Force full reload
+      }
     }
   } catch (err) {
     console.error("Version check failed:", err);
   }
 }
 
-// Check every 60 seconds
+// Check every 10 seconds
 setInterval(checkForUpdates, 10000);
 
 // Optionally run once on page load
