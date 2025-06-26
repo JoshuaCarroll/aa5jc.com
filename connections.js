@@ -154,6 +154,22 @@ function connectNodes(nodeA, nodeB) {
 }
 
 // _____ Keyed node functions _____
+function SetNodeReceiving(nodeNumber) {
+	const markerName = markerNamePrefix + nodeNumber;
+	if (mapObjects.markers.get(markerName)) {
+		mapObjects.markers.get(markerName).setIcon(iconReceiving);
+		$("#" + tableRowNamePrefix + nodeNumber).removeClass("cell-transmitting");
+	}
+				
+	// Remove the item from the activeTransmittersCache array
+	activeTransmittersCache.splice(activeTransmittersCache.indexOf(nodeNumber), 1);
+}
+
+function SetNodeTransmitting(nodeNumber) {
+	mapObjects.markers.get(markerName).setIcon(iconTransmitting);
+	$("#" + tableRowNamePrefix + nodeNumber).addClass("cell-transmitting");
+}
+
 async function checkActiveTransmitters() {
 	$.getJSON("https://local.aa5jc.com/api/transmitting", function (activeNodes) {
 
@@ -161,16 +177,7 @@ async function checkActiveTransmitters() {
 		for (const nodeNumber of activeTransmittersCache) {
 			if (activeNodes.indexOf(nodeNumber) == -1) {
 				// The node is no longer transmitting, so we set its icon to receiving
-				console.debug("Node " + nodeNumber + " is no longer transmitting, updating icon to receiving.");
-
-				const markerName = markerNamePrefix + nodeNumber;
-				if (mapObjects.markers.get(markerName)) {
-					mapObjects.markers.get(markerName).setIcon(iconReceiving);
-					$("#" + tableRowNamePrefix + nodeNumber).removeClass("cell-transmitting");
-				}
-				
-				// Remove the item from the activeTransmittersCache array
-				activeTransmittersCache.splice(activeTransmittersCache.indexOf(nodeNumber), 1);
+				SetNodeReceiving(nodeNumber);
 			}
 		}
 
@@ -182,10 +189,7 @@ async function checkActiveTransmitters() {
 				const markerName = markerNamePrefix + nodeNumber;
 				if (mapObjects.markers.get(markerName)) { // Check if the marker exists
 					if (activeTransmittersCache.indexOf(nodeNumber) != -1) {
-						// If the node is not already in the activeTransmittersCache, add it
-						console.log("Node " + nodeNumber + " is now transmitting, updating icon to transmitting.");
-						mapObjects.markers.get(markerName).setIcon(iconTransmitting);
-						$("#" + tableRowNamePrefix + nodeNumber).addClass("cell-transmitting");
+						SetNodeTransmitting(nodeNumber);
 					}
 				}
 				else {
