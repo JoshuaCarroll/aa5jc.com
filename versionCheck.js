@@ -18,7 +18,7 @@ async function checkForUpdates() {
 }
 
 // Check every 60 seconds
-setInterval(checkForUpdates, 60000);
+setInterval(checkForUpdates, 10000);
 
 // Optionally run once on page load
 checkForUpdates();
