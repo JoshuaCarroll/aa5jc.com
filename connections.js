@@ -12,9 +12,9 @@ var iconWidth = 30;
 
 var lineColors = ['#F7BD5A','#FFCC99','#FFFF33','#FFFF9C','#CD6363','#FF9C00','#CC99CC','#ff9f63','#646DCC','#9C9CFF','#FF9C00','#3399FF','#99CCFF','#ED884C','#FFFFCC','#B1957A','#F5ED00','#DDFFFF'];
 
-var mapZoomLevel = 6;
+var mapZoomLevel = 7;
 if (screen.height == "480") {
-	zoomLevel = 7;
+	zoomLevel = 5;
 }
 
 var mapCenter = [34.7, -92.5]; // Default to Arkansas
@@ -167,8 +167,13 @@ function SetNodeReceiving(nodeNumber) {
 
 function SetNodeTransmitting(nodeNumber) {
 	const markerName = markerNamePrefix + nodeNumber;
-	mapObjects.markers.get(markerName).setIcon(iconTransmitting);
+	var marker = mapObjects.markers.get(markerName);
+	marker.setIcon(iconTransmitting);
 	$("#" + tableRowNamePrefix + nodeNumber).addClass("cell-transmitting");
+
+	if ($('#chkZoomToTransmitter').is(':checked')) {
+		map.flyTo(marker._latlng);
+	}
 }
 
 async function checkActiveTransmitters() {
