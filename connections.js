@@ -88,8 +88,6 @@ function addOrUpdateNode(node) {
 	if (!node || !node.server || !node.server.location || !node.server.latitude || !node.server.logitude) 
 		return; // Skip if node data is incomplete
 
-	console.debug("Adding or updating node: " + node.name);
-
 	const nodeNumber = node.name;
 	const markerName = markerNamePrefix + nodeNumber;
 
@@ -184,9 +182,11 @@ async function checkActiveTransmitters() {
 
 		for (const key in transmittingNodes) {
 			if (nodeCache.hasOwnProperty(key)) {
-				activeNodes.push(key); // Collect the node numbers of active transmitters
+				activeNodes.push(key); // Collect the node numbers of active transmitters in our network
 			}
 		}
+
+		console.debug('Active transmitters: ', activeNodes);
 
 		// Set the icon for each newly receiving node
 		for (const nodeNumber of activeTransmittersCache) {
@@ -197,8 +197,6 @@ async function checkActiveTransmitters() {
 		}
 
 		if (activeNodes.length) {
-			console.debug('Active transmitters: ', activeNodes);
-
 			// Set the icon for each newly transmitting node
 			for (const nodeNumber of activeNodes) {
 				const markerName = markerNamePrefix + nodeNumber;
