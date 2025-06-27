@@ -32,10 +32,18 @@ jobs:
         with:
           token: ${{ secrets.GH_PAT }}
 
-      - name: Set version timestamp
+      - name: Get latest commit message (3rd item)
+        id: get_commit
         run: |
-          VERSION=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-          echo "{\"version\":\"$VERSION\"}" > version.json
+          curl -s https://api.github.com/repos/JoshuaCarroll/aa5jc.com/commits \
+          | jq -r '.[2].commit.message' > commit_msg.txt
+          echo "commit_msg<<EOF" >> $GITHUB_ENV
+          cat commit_msg.txt >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Update version.json
+        run: |
+          echo "{\"version\":\"$(date +%s)\", \"message\":\"$commit_msg\"}" > version.json
 
       - name: Commit and push version.json
         run: |
