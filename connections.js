@@ -32,9 +32,10 @@ const mapObjects = {
 $(function () {
 	loadData();
 
+	// Give the nodes a moment to load before checking for active transmitters
 	setTimeout(async () => {
 		checkActiveTransmitters();
-	}, howOftenToUpdateKeyedNodes);
+	}, 15);
 });
 
 
