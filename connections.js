@@ -32,11 +32,7 @@ const mapObjects = {
 $(function () {
 	loadData();
 
-	setInterval(function () {
-		loadData();
-	}, howOftenToUpdateNodes);
-
-	setInterval(async () => {
+	setTimeout(async () => {
 		checkActiveTransmitters();
 	}, howOftenToUpdateKeyedNodes);
 });
@@ -71,6 +67,11 @@ function loadData() {
 		nodeCache = nodes;
 
 		$("#divLoadingContainer").hide();
+
+		// Set up periodic updates
+		setTimeout(function () {
+			loadData();
+		}, howOftenToUpdateNodes);
 	});
 }
 
@@ -213,6 +214,11 @@ async function checkActiveTransmitters() {
 		}
 
 		activeTransmittersCache = activeNodes; // Update the cache with the latest active nodes
+
+		// Set up the next check
+		setTimeout(async () => {
+			checkActiveTransmitters();
+		}, howOftenToUpdateKeyedNodes);
 	});
 }
 
