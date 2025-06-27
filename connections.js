@@ -177,7 +177,15 @@ function SetNodeTransmitting(nodeNumber) {
 }
 
 async function checkActiveTransmitters() {
-	$.getJSON("https://local.aa5jc.com/api/transmitting", function (activeNodes) {
+	$.getJSON("https://local.aa5jc.com/api/transmitting", function (transmittingNodes) {
+
+		var activeNodes = [];
+
+		for (const key in transmittingNodes) {
+			if (nodeCache.hasOwnProperty(key)) {
+				activeNodes.push(key); // Collect the node numbers of active transmitters
+			}
+		}
 
 		// Set the icon for each newly receiving node
 		for (const nodeNumber of activeTransmittersCache) {
