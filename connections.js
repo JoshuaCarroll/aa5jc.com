@@ -5,7 +5,7 @@ var tableRowNamePrefix = "t";
 var lineNamePrefix = "link-";
 
 var howOftenToUpdateNodes = 30000; // milliseconds
-var howOftenToUpdateKeyedNodes = 1500; // milliseconds
+var howOftenToUpdateKeyedNodes = 6000; // milliseconds
 
 var iconHeight = 30;
 var iconWidth = 30;
