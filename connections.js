@@ -35,7 +35,7 @@ $(function () {
 	// Give the nodes a moment to load before checking for active transmitters
 	setTimeout(async () => {
 		checkActiveTransmitters();
-	}, 15);
+	}, 15000);
 });
 
 
