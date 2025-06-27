@@ -35,7 +35,7 @@ jobs:
       - name: Get latest commit message (3rd item)
         id: get_commit
         run: |
-          curl -s https://api.github.com/repos/JoshuaCarroll/aa5jc.com/commits | jq -r '.[1].commit.message' > commit_msg.txt
+          curl -s https://api.github.com/repos/JoshuaCarroll/aa5jc.com/commits | jq -r '.[0].commit.message' > commit_msg.txt
           echo "commit_msg<<EOF" >> $GITHUB_ENV
           cat commit_msg.txt >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
