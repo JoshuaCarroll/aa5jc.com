@@ -33,9 +33,12 @@ $(function () {
 	loadData();
 
 	// Give the nodes a moment to load before checking for active transmitters
+	// TEMPORARILY DISABLED
+	/*
 	setTimeout(async () => {
 		checkActiveTransmitters();
 	}, 15000);
+	*/
 });
 
 
