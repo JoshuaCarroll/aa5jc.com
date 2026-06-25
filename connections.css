@@ -111,7 +111,7 @@ body {
 #divConnections {
     float: left;
     margin-left: 5px;
-    width: 100%;
+    width: 600px;
 }
 
     #divConnections a {
@@ -147,16 +147,6 @@ body {
 
     #divConnections table tr td:nth-of-type(2) {
         width: 100px;
-        overflow: hidden;
-    }
-
-    #divConnections table tr td:nth-of-type(3) {
-        width: 200px;
-        overflow: hidden;
-    }
-
-    #divConnections table tr td:nth-of-type(4) {
-        width: 350px;
         overflow: hidden;
     }
 
