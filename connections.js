@@ -2,10 +2,8 @@
 
 var markerNamePrefix = "m";
 var tableRowNamePrefix = "t";
-var lineNamePrefix = "link-";
 
-var howOftenToUpdateNodes = 30000; // milliseconds
-var howOftenToUpdateKeyedNodes = 6000; // milliseconds
+var howOftenToUpdateNodes = 60000; // milliseconds
 
 var iconHeight = 30;
 var iconWidth = 30;
@@ -31,19 +29,11 @@ const mapObjects = {
 
 $(function () {
 	loadData();
-
-	// Give the nodes a moment to load before checking for active transmitters
-	// TEMPORARILY DISABLED
-	/*
-	setTimeout(async () => {
-		checkActiveTransmitters();
-	}, 15000);
-	*/
 });
 
 
 function loadData() {
-	$.getJSON("https://local.aa5jc.com/api/asl", function (nodes) {
+	$.getJSON("https://hub.aa5jc.com/allmon3/nodestatus.php", function (nodes) {
 
 		addOrUpdateNodes(nodes);
 
@@ -51,19 +41,6 @@ function loadData() {
 		for (const key in nodeCache) {
 			if (!nodes.hasOwnProperty(key)) {
 				removeNode(key);
-			}
-		}
-
-        // Draw lines between nodes
-		for (const key in nodes) {
-			// if this node has links, draw them
-			if (nodes[key] && nodes[key].data && nodes[key].data.links) {
-				for (const link of nodes[key].data.links) {
-					const targetNode = nodes[link];
-					if (targetNode) {
-						connectNodes(nodes[key], targetNode);
-					}
-				}
 			}
 		}
 
@@ -89,14 +66,14 @@ function addOrUpdateNodes(nodes) {
 }
 
 function addOrUpdateNode(node) {
-	if (!node || !node.server || !node.server.location || !node.server.latitude || !node.server.logitude) 
+	if (!node || !node.lat || !node.lon) 
 		return; // Skip if node data is incomplete
 
-	const nodeNumber = node.name;
+	const nodeNumber = node.node;
 	const markerName = markerNamePrefix + nodeNumber;
 
-	const latValid = node.server.latitude != null && node.server.latitude != 0;
-	const lonValid = node.server.logitude != null && node.server.logitude != 0;
+	const latValid = node.lat != null && node.lat != 0;
+	const lonValid = node.lon != null && node.lon != 0;
 
 	// If it's a private node, skip it
     if (nodeNumber < 2000) {
@@ -105,11 +82,11 @@ function addOrUpdateNode(node) {
 
 	if (latValid && lonValid) {
 		if (!mapObjects.markers.get(markerName)) {
-			mapObjects.markers.set(markerName, newMarker(nodeNumber, node.server.location, node.server.latitude, node.server.logitude));
+			mapObjects.markers.set(markerName, newMarker(nodeNumber, node.desc, node.lat, node.lon));
 		}
 	}
 	else {
-		console.warn("Node " + nodeNumber + " has invalid coordinates: (" + node.server.latitude + ", " + node.server.logitude + ")");
+		console.warn("Node " + nodeNumber + " has invalid coordinates: (" + node.lat + ", " + node.lon + ")");
 	}
 
 	var nodeTone = node.node_tone != "" ? " (" + node.node_tone + ")" : "";
@@ -117,9 +94,8 @@ function addOrUpdateNode(node) {
 	$("#tbodyConnections").append(
 		"<tr id='" + tableRowNamePrefix + nodeNumber + "'>"
 		+ "  <td><a href='https://stats.allstarlink.org/stats/" + nodeNumber + "' target='_blank'>" + nodeNumber + "</a></td>"
-		+ "  <td><a href='https://www.qrz.com/db/" + node.user_ID + "' target='_blank'>" + node.user_ID + "</a></td>"
-		+ "  <td>" + node.server.location + "</td>"
-		+ "  <td>" + node.node_frequency + nodeTone + "</td>"
+		+ "  <td><a href='https://www.qrz.com/db/" + node.callsign + "' target='_blank'>" + node.callsign + "</a></td>"
+		+ "  <td>" + node.desc + "</td>"
 		+ "</tr>"
 	);
 }
@@ -140,89 +116,6 @@ function removeNode(nodeNumber) {
 	deleteLines(nodeNumber);
 }
 
-function connectNodes(nodeA, nodeB) {
-	// Ensure both nodes are valid
-	if (!nodeA || !nodeA.server || !nodeB || !nodeB.server) {
-		return;
-	}
-
-	const pointA = [nodeA.server.latitude, nodeA.server.logitude];
-	const pointB = [nodeB.server.latitude, nodeB.server.logitude];
-	const lineName = getLineKey(nodeA.name, nodeB.name);
-
-	// Check if the line already exists
-	if (!mapObjects.lines.get(lineName)) {
-		newLine(lineName, pointA, pointB);
-	}
-}
-
-// _____ Keyed node functions _____
-function SetNodeReceiving(nodeNumber) {
-	const markerName = markerNamePrefix + nodeNumber;
-	if (mapObjects.markers.get(markerName)) {
-		mapObjects.markers.get(markerName).setIcon(iconReceiving);
-		$("#" + tableRowNamePrefix + nodeNumber).removeClass("cell-transmitting");
-	}
-				
-	// Remove the item from the activeTransmittersCache array
-	activeTransmittersCache.splice(activeTransmittersCache.indexOf(nodeNumber), 1);
-}
-
-function SetNodeTransmitting(nodeNumber) {
-	const markerName = markerNamePrefix + nodeNumber;
-	var marker = mapObjects.markers.get(markerName);
-	marker.setIcon(iconTransmitting);
-	$("#" + tableRowNamePrefix + nodeNumber).addClass("cell-transmitting");
-
-	if ($('#chkZoomToTransmitter').is(':checked')) {
-		map.flyTo(marker._latlng);
-	}
-}
-
-async function checkActiveTransmitters() {
-	$.getJSON("https://local.aa5jc.com/api/transmitting", function (transmittingNodes) {
-
-		var activeNodes = [];
-
-		for (const key in transmittingNodes) {
-			if (nodeCache.hasOwnProperty(key)) {
-				activeNodes.push(key); // Collect the node numbers of active transmitters in our network
-			}
-		}
-
-		console.debug('Active transmitters: ', activeNodes);
-
-		// Set the icon for each newly receiving node
-		for (const nodeNumber of activeTransmittersCache) {
-			if (activeNodes.indexOf(nodeNumber) == -1) {
-				// The node is no longer transmitting, so we set its icon to receiving
-				SetNodeReceiving(nodeNumber);
-			}
-		}
-
-		if (activeNodes.length) {
-			// Set the icon for each newly transmitting node
-			for (const nodeNumber of activeNodes) {
-				const markerName = markerNamePrefix + nodeNumber;
-				if (mapObjects.markers.get(markerName)) { // Check if the marker exists
-					if (activeTransmittersCache.indexOf(nodeNumber) != -1) {
-						SetNodeTransmitting(nodeNumber);
-					}
-				}
-				else {
-					console.warn("Node " + nodeNumber + " is transmitting but does not have a marker on the map.");
-				}
-			}
-		}
-
-		activeTransmittersCache = activeNodes; // Update the cache with the latest active nodes
-
-		// Set up the next check
-		setTimeout(async () => {
-			checkActiveTransmitters();
-		}, howOftenToUpdateKeyedNodes);
-	});
-}
 
 // _____ Leaflet Map Functions ____________________________________________________________________________________________________________
 
@@ -253,7 +146,7 @@ var iconTransmitting = L.divIcon({
 
 function newMarker(nodeNumber, city, lat, lon) {
 	console.debug("Creating new marker for node: " + nodeNumber + " at " + city + " (" + lat + ", " + lon + ")");
-	const marker = L.marker([lat, lon], { icon: iconDisconnectedNode }).addTo(map).bindPopup(city + "<br>" + "node " + nodeNumber);
+	const marker = L.marker([lat, lon], { icon: iconReceiving }).addTo(map).bindPopup(city + "<br>" + "node " + nodeNumber);
     return marker;
 }
 
