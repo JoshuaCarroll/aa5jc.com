@@ -1,4 +1,4 @@
-name: Update version.json and Deploy to GitHub Pages
+name: Update version and deploy
 
 on:
   push:
