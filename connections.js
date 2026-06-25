@@ -36,7 +36,8 @@ function loadData() {
 	$.getJSON("https://hub.aa5jc.com/allmon3/nodestatus.php", function (data) {
 		console.debug("Loaded data: ", data);
 		
-		updateNodeTable(data.nodes);
+		updateTable(data.nodes);
+		updateMap(data.nodes);
 
 		$("#divLoadingContainer").hide();
 		nodeCache = data.nodes;  // Update the cache with the latest data
@@ -52,19 +53,19 @@ function updateMap(nodes) {
 	// Remove markers that are no longer in the data
 	for (const key in nodeCache) {
 		if (!nodes.hasOwnProperty(key)) {
-			removeNode(key);
+			removeMarker(key);
 		}
 	}
 
 	// Add markers for new nodes
 	for (const key in nodes) {
 		if (!nodeCache.hasOwnProperty(key)) {
-			addNode(nodes[key]);
+			addMarker(nodes[key]);
 		}
 	}
 }
 
-function updateNodeTable(nodes) {
+function updateTable(nodes) {
 	// Clear the table body
 	$("#tbodyConnections").empty();
 
@@ -81,36 +82,26 @@ function updateNodeTable(nodes) {
 	}
 }
 
-function addNode(node) {
-	if (!node || !node.lat || !node.lon) 
-		return; // Skip if node data is incomplete
+function addMarker(node) {
+	if (!node) return;
 
 	const nodeNumber = node.node;
-	const markerName = markerNamePrefix + nodeNumber;
-
-	const latValid = node.lat != null && node.lat != 0;
-	const lonValid = node.lon != null && node.lon != 0;
 
 	// If it's a private node, skip it
-    if (nodeNumber < 2000) {
-        return;
-    }
+	if (nodeNumber < 2000) return;
 
-	if (latValid && lonValid) {
-		if (!mapObjects.markers.get(markerName)) {
-			mapObjects.markers.set(markerName, newMarker(nodeNumber, node.desc, node.lat, node.lon));
-		}
-	}
-	else {
+	if (!node.lat || !node.lon) {
 		console.warn("Node " + nodeNumber + " has invalid coordinates: (" + node.lat + ", " + node.lon + ")");
+		return;
 	}
 
-	var nodeTone = node.node_tone != "" ? " (" + node.node_tone + ")" : "";
-
-
+	const markerName = markerNamePrefix + nodeNumber;
+	if (!mapObjects.markers.get(markerName)) {
+		mapObjects.markers.set(markerName, newMarker(nodeNumber, node.desc, node.lat, node.lon));
+	}
 }
 
-function removeNode(nodeNumber) {
+function removeMarker(nodeNumber) {
 	const markerName = markerNamePrefix + nodeNumber;
 	const marker = mapObjects.markers.get(markerName);
 
