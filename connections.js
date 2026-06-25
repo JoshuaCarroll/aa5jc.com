@@ -33,14 +33,14 @@ $(function () {
 
 
 function loadData() {
-	$.getJSON("https://hub.aa5jc.com/allmon3/nodestatus.php", function (nodes) {
-		console.debug("Loaded " + Object.keys(nodes).length + " nodes: ", nodes);
-		$("#divLoadingContainer").text("Loaded " + Object.keys(nodes).length + " nodes.");
+	$.getJSON("https://hub.aa5jc.com/allmon3/nodestatus.php", function (data) {
+		console.debug("Loaded " + Object.keys(data.nodes).length + " nodes: ", data.nodes);
+		$("#divLoadingContainer").text("Loaded " + Object.keys(data.nodes).length + " nodes.");
 		
-		updateNodeTable(nodes);
+		updateNodeTable(data.nodes);
 
 		$("#divLoadingContainer").hide();
-		nodeCache = nodes;  // Update the cache with the latest data
+		nodeCache = data.nodes;  // Update the cache with the latest data
 
 		// Set up periodic updates
 		setTimeout(function () {
