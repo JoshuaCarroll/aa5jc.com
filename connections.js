@@ -34,18 +34,11 @@ $(function () {
 
 function loadData() {
 	$.getJSON("https://hub.aa5jc.com/allmon3/nodestatus.php", function (nodes) {
+		console.debug("Loaded node data:", nodes);
+		
+		$("#divLoadingContainer").text("Loaded " + Object.keys(nodes).length + " nodes.");
 
-		addOrUpdateNodes(nodes);
-
-		// Clear old markers that are no longer in the data
-		for (const key in nodeCache) {
-			if (!nodes.hasOwnProperty(key)) {
-				removeNode(key);
-			}
-		}
-
-        // Update the cache with the latest data
-		nodeCache = nodes;
+		updateNodeTable(nodes);
 
 		$("#divLoadingContainer").hide();
 
@@ -56,16 +49,42 @@ function loadData() {
 	});
 }
 
-function addOrUpdateNodes(nodes) {
-	// Clear the table body before adding new rows
+function updateMap(nodes) {
+	// Remove markers that are no longer in the data
+	for (const key in nodeCache) {
+		if (!nodes.hasOwnProperty(key)) {
+			removeNode(key);
+		}
+	}
+
+	// Add markers for new nodes
+	for (const key in nodes) {
+		if (!nodeCache.hasOwnProperty(key)) {
+			addNode(nodes[key]);
+		}
+	}
+
+	// Update the cache with the latest data
+	nodeCache = nodes;
+}
+
+function updateNodeTable(nodes) {
+	// Clear the table body
 	$("#tbodyConnections").empty();
 
 	for (const key in nodes) {
-		addOrUpdateNode(nodes[key]);
+		const node = nodes[key];
+		$("#tbodyConnections").append(
+			"<tr id='" + tableRowNamePrefix + node.node + "'>"
+			+ "  <td><a href='https://stats.allstarlink.org/stats/" + node.node + "' target='_blank'>" + node.node + "</a></td>"
+			+ "  <td><a href='https://www.qrz.com/db/" + node.callsign + "' target='_blank'>" + node.callsign + "</a></td>"
+			+ "  <td>" + node.desc + "</td>"
+			+ "</tr>"
+		);
 	}
 }
 
-function addOrUpdateNode(node) {
+function addNode(node) {
 	if (!node || !node.lat || !node.lon) 
 		return; // Skip if node data is incomplete
 
@@ -91,13 +110,7 @@ function addOrUpdateNode(node) {
 
 	var nodeTone = node.node_tone != "" ? " (" + node.node_tone + ")" : "";
 
-	$("#tbodyConnections").append(
-		"<tr id='" + tableRowNamePrefix + nodeNumber + "'>"
-		+ "  <td><a href='https://stats.allstarlink.org/stats/" + nodeNumber + "' target='_blank'>" + nodeNumber + "</a></td>"
-		+ "  <td><a href='https://www.qrz.com/db/" + node.callsign + "' target='_blank'>" + node.callsign + "</a></td>"
-		+ "  <td>" + node.desc + "</td>"
-		+ "</tr>"
-	);
+
 }
 
 function removeNode(nodeNumber) {
@@ -111,9 +124,6 @@ function removeNode(nodeNumber) {
 
 		mapObjects.markers.delete(markerName);
 	}
-	
-	// Remove any lines associated with this node
-	deleteLines(nodeNumber);
 }
 
 
