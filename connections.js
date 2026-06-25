@@ -119,10 +119,17 @@ function removeMarker(nodeNumber) {
 
 var map = L.map("map").setView(mapCenter, mapZoomLevel);
 
-var tiles = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+var openFreeDark = L.tileLayer('https://openfreemap.org{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors, Style by <a href="https://openfreemap.org">OpenFreeMap</a>'
+});
+
+var openStreetMap = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
 	maxZoom: 19,
 	attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-}).addTo(map);
+});
+
+openFreeDark.addTo(map);
 
 var iconDisconnectedNode = L.divIcon({
 	className: 'icon-antenna',
