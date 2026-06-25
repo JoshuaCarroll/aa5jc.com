@@ -34,8 +34,7 @@ $(function () {
 
 function loadData() {
 	$.getJSON("https://hub.aa5jc.com/allmon3/nodestatus.php", function (data) {
-		console.debug("Loaded " + Object.keys(data.nodes).length + " nodes: ", data.nodes);
-		$("#divLoadingContainer").text("Loaded " + Object.keys(data.nodes).length + " nodes.");
+		console.debug("Loaded data: ", data);
 		
 		updateNodeTable(data.nodes);
 
