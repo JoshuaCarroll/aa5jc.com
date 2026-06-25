@@ -34,13 +34,13 @@ $(function () {
 
 function loadData() {
 	$.getJSON("https://hub.aa5jc.com/allmon3/nodestatus.php", function (nodes) {
-		console.debug("Loaded node data:", nodes);
-		
+		console.debug("Loaded " + Object.keys(nodes).length + " nodes: ", nodes);
 		$("#divLoadingContainer").text("Loaded " + Object.keys(nodes).length + " nodes.");
-
+		
 		updateNodeTable(nodes);
 
 		$("#divLoadingContainer").hide();
+		nodeCache = nodes;  // Update the cache with the latest data
 
 		// Set up periodic updates
 		setTimeout(function () {
@@ -63,9 +63,6 @@ function updateMap(nodes) {
 			addNode(nodes[key]);
 		}
 	}
-
-	// Update the cache with the latest data
-	nodeCache = nodes;
 }
 
 function updateNodeTable(nodes) {
@@ -74,6 +71,7 @@ function updateNodeTable(nodes) {
 
 	for (const key in nodes) {
 		const node = nodes[key];
+		console.debug("Adding node to table: ", node);
 		$("#tbodyConnections").append(
 			"<tr id='" + tableRowNamePrefix + node.node + "'>"
 			+ "  <td><a href='https://stats.allstarlink.org/stats/" + node.node + "' target='_blank'>" + node.node + "</a></td>"
