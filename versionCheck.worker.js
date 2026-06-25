@@ -13,7 +13,8 @@ async function checkForUpdates() {
   } catch (err) {
     // Silently fail; will retry on next interval
   }
+
+  setTimeout(checkForUpdates, 10000); // Schedule the next check
 }
 
-setInterval(checkForUpdates, 10000);
 checkForUpdates();
