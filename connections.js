@@ -111,6 +111,20 @@ function removeMarker(nodeNumber) {
 	}
 }
 
+function selectStyle(style) {
+  const styleUrl = `https://tiles.openfreemap.org/styles/${style.split('-')[0]}`
+  map.setStyle(styleUrl)
+
+  if (style === 'liberty-3d') {
+    map.setCenter(london3d.center)
+    map.setPitch(london3d.pitch)
+    map.setBearing(london3d.bearing)
+    map.setZoom(london3d.zoom)
+    map.dragRotate.enable()
+  } 
+
+  document.getElementById('style-url-code').innerText = styleUrl
+}
 
 // _____ Leaflet Map Functions ____________________________________________________________________________________________________________
 
@@ -124,7 +138,7 @@ var openStreetMap = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png"
 */
 
 L.maplibreGL({
-style: 'https://tiles.openfreemap.org/styles/liberty',
+style: 'https://tiles.openfreemap.org/styles/dark',
 }).addTo(map);
 
 var iconDisconnectedNode = L.divIcon({
@@ -146,7 +160,6 @@ var iconTransmitting = L.divIcon({
 });
 
 function newMarker(nodeNumber, city, lat, lon) {
-	console.debug("Creating new marker for node: " + nodeNumber + " at " + city + " (" + lat + ", " + lon + ")");
 	const marker = L.marker([lat, lon], { icon: iconReceiving }).addTo(map).bindPopup(city + "<br>" + "node " + nodeNumber);
     return marker;
 }
