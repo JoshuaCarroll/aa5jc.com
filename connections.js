@@ -34,7 +34,6 @@ $(function () {
 
 function loadData() {
 	$.getJSON("https://hub.aa5jc.com/allmon3/nodestatus.php", function (data) {
-		console.debug("Loaded data: ", data);
 		
 		updateTable(data.nodes);
 		updateMap(data.nodes);
@@ -71,7 +70,6 @@ function updateTable(nodes) {
 
 	for (const key in nodes) {
 		const node = nodes[key];
-		console.debug("Adding node to table: ", node);
 		$("#tbodyConnections").append(
 			"<tr id='" + tableRowNamePrefix + node.node + "'>"
 			+ "  <td><a href='https://stats.allstarlink.org/stats/" + node.node + "' target='_blank'>" + node.node + "</a></td>"
@@ -91,7 +89,6 @@ function addMarker(node) {
 	if (nodeNumber < 2000) return;
 
 	if (!node.lat || !node.lon) {
-		console.warn("Node " + nodeNumber + " has invalid coordinates: (" + node.lat + ", " + node.lon + ")");
 		return;
 	}
 
@@ -119,17 +116,16 @@ function removeMarker(nodeNumber) {
 
 var map = L.map("map").setView(mapCenter, mapZoomLevel);
 
-var openFreeDark = L.tileLayer('https://openfreemap.org{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors, Style by <a href="https://openfreemap.org">OpenFreeMap</a>'
-});
-
+/*
 var openStreetMap = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
 	maxZoom: 19,
 	attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 });
+*/
 
-openFreeDark.addTo(map);
+L.maplibreGL({
+style: 'https://tiles.openfreemap.org/styles/liberty',
+}).addTo(map);
 
 var iconDisconnectedNode = L.divIcon({
 	className: 'icon-antenna',
