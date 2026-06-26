@@ -121,7 +121,7 @@ var markerCluster = L.markerClusterGroup({
 	zoomToBoundsOnClick: true,
 	animate: true,
 	animateAddingMarkers: true,
-	maxClusterRadius: 30
+	maxClusterRadius: 15
 });
 map.addLayer(markerCluster);
 
