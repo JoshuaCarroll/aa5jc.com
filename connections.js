@@ -123,7 +123,6 @@ var markerCluster = L.markerClusterGroup({
 	animateAddingMarkers: true,
 	maxClusterRadius: 15,
 	iconCreateFunction: function (cluster) {
-
 		return L.divIcon({ html: cluster.getChildCount(), className: 'icon-receiving', iconSize: L.point(iconWidth, iconHeight) });
 	}
 });
@@ -131,6 +130,7 @@ map.addLayer(markerCluster);
 
 L.maplibreGL({
 	style: 'https://tiles.openfreemap.org/styles/dark',
+	attribution: 'Powered by <a href="https://github.com/JoshuaCarroll/allmon3-netmap">NetMap</a> | <a href="https://openfreemap.org/">OpenFreeMap</a> | <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
 var iconDisconnectedNode = L.divIcon({
@@ -151,8 +151,20 @@ var iconTransmitting = L.divIcon({
 	popupAnchor: [0, -1 * iconHeight]
 });
 
-function newMarker(nodeNumber, city, lat, lon) {
-	const marker = L.marker([lat, lon], { icon: iconReceiving }).bindPopup(city + "<br>" + "node " + nodeNumber);
+var iconComputer = L.divIcon({
+	className: 'icon-computer',
+	iconAnchor: [iconWidth / 2, iconHeight],
+	popupAnchor: [0, -1 * iconHeight]
+});
+
+function newMarker(nodeNumber, description, lat, lon) {
+	var NewMarkerIcon = { icon: iconReceiving };
+
+	if (nodeNumber.substring(0, 1) === "3") {
+		NewMarkerIcon = { icon: iconComputer };
+	}
+
+	const marker = L.marker([lat, lon], NewMarkerIcon).bindPopup(description + "<br>" + "node " + nodeNumber);
 	markerCluster.addLayer(marker);
     return marker;
 }

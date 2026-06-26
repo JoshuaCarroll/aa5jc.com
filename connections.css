@@ -45,7 +45,7 @@ body {
     float: left;
 }
 
-    #map .icon-antenna, #map .icon-receiving, #map .icon-transmitting {
+    #map .icon-antenna, #map .icon-receiving, #map .icon-transmitting, #map .icon-computer {
         display: inline-block;
         height: 30px !important;
         width: 30px !important;
@@ -58,7 +58,11 @@ body {
     }
 
     #map .icon-receiving {
+        background-image: url("/icons/computer.png");
+    }
 
+    #map .icon-computer {
+        opacity: 0.75;
     }
 
     #map .icon-transmitting {
