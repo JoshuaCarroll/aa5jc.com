@@ -113,7 +113,7 @@ function removeMarker(nodeNumber) {
 
 // _____ Leaflet Map Functions ____________________________________________________________________________________________________________
 
-var map = L.map("map", { maxZoom: 5 }).setView(mapCenter, mapZoomLevel);
+var map = L.map("map", { maxZoom: 18 }).setView(mapCenter, mapZoomLevel);
 
 var markerCluster = L.markerClusterGroup();
 map.addLayer(markerCluster);
