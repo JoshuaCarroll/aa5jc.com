@@ -118,7 +118,10 @@ var map = L.map("map", { maxZoom: 18 }).setView(mapCenter, mapZoomLevel);
 var markerCluster = L.markerClusterGroup({
 	spiderfyOnMaxZoom: true,
 	showCoverageOnHover: false,
-	zoomToBoundsOnClick: false
+	zoomToBoundsOnClick: true,
+	animate: true,
+	animateAddingMarkers: true,
+	maxClusterRadius: 30
 });
 map.addLayer(markerCluster);
 
