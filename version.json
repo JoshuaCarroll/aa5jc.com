@@ -1,1 +1,1 @@
-{"version":"1782430944", "message":"Update CSS styles and modify map tile layer in JavaScript"}
+{"version":"1782432214", "message":"Refactor Leaflet and Maplibre GL integration; remove debug logs and update map layer"}
