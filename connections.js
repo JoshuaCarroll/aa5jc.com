@@ -121,7 +121,11 @@ var markerCluster = L.markerClusterGroup({
 	zoomToBoundsOnClick: true,
 	animate: true,
 	animateAddingMarkers: true,
-	maxClusterRadius: 15
+	maxClusterRadius: 15,
+	iconCreateFunction: function (cluster) {
+
+		return L.divIcon({ html: cluster.getChildCount(), className: 'icon-receiving', iconSize: L.point(iconWidth, iconHeight) });
+	}
 });
 map.addLayer(markerCluster);
 
