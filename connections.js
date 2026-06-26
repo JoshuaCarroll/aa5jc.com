@@ -115,7 +115,11 @@ function removeMarker(nodeNumber) {
 
 var map = L.map("map", { maxZoom: 18 }).setView(mapCenter, mapZoomLevel);
 
-var markerCluster = L.markerClusterGroup();
+var markerCluster = L.markerClusterGroup({
+	spiderfyOnMaxZoom: true,
+	showCoverageOnHover: false,
+	zoomToBoundsOnClick: false
+});
 map.addLayer(markerCluster);
 
 L.maplibreGL({
