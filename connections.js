@@ -33,7 +33,7 @@ $(function () {
 
 
 function loadData() {
-	$.getJSON("https://hub.aa5jc.com/allmon3/nodestatus.php", function (data) {
+	$.getJSON("https://hub.aa5jc.com/allmon3/netmap.php", function (data) {
 		
 		updateTable(data.nodes);
 		updateMap(data.nodes);
