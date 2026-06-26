@@ -104,38 +104,19 @@ function removeMarker(nodeNumber) {
 
 	if (marker) {
 		if (marker instanceof L.Marker) {
-			map.removeLayer(marker);
+			markerCluster.removeLayer(marker);
 		}
 
 		mapObjects.markers.delete(markerName);
 	}
 }
 
-function selectStyle(style) {
-  const styleUrl = `https://tiles.openfreemap.org/styles/${style.split('-')[0]}`
-  map.setStyle(styleUrl)
-
-  if (style === 'liberty-3d') {
-    map.setCenter(london3d.center)
-    map.setPitch(london3d.pitch)
-    map.setBearing(london3d.bearing)
-    map.setZoom(london3d.zoom)
-    map.dragRotate.enable()
-  } 
-
-  document.getElementById('style-url-code').innerText = styleUrl
-}
-
 // _____ Leaflet Map Functions ____________________________________________________________________________________________________________
 
 var map = L.map("map").setView(mapCenter, mapZoomLevel);
 
-/*
-var openStreetMap = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-	maxZoom: 19,
-	attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-});
-*/
+var markerCluster = L.markerClusterGroup();
+map.addLayer(markerCluster);
 
 L.maplibreGL({
 style: 'https://tiles.openfreemap.org/styles/dark',
@@ -160,7 +141,8 @@ var iconTransmitting = L.divIcon({
 });
 
 function newMarker(nodeNumber, city, lat, lon) {
-	const marker = L.marker([lat, lon], { icon: iconReceiving }).addTo(map).bindPopup(city + "<br>" + "node " + nodeNumber);
+	const marker = L.marker([lat, lon], { icon: iconReceiving }).bindPopup(city + "<br>" + "node " + nodeNumber);
+	markerCluster.addLayer(marker);
     return marker;
 }
 
