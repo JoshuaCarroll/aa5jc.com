@@ -157,14 +157,17 @@ var iconComputer = L.divIcon({
 	popupAnchor: [0, -1 * iconHeight]
 });
 
-function newMarker(nodeNumber, description, lat, lon) {
+const isNumeric = (val) => !isNaN(parseFloat(val)) && isFinite(val);
+
+function newMarker(node, description, lat, lon, type) {
 	var NewMarkerIcon = { icon: iconReceiving };
 
-	if (nodeNumber.substring(0, 1) === "3") {
+	if (type == "echolink") {
 		NewMarkerIcon = { icon: iconComputer };
 	}
+	
 
-	const marker = L.marker([lat, lon], NewMarkerIcon).bindPopup(description + "<br>" + "node " + nodeNumber);
+	const marker = L.marker([lat, lon], NewMarkerIcon).bindPopup();
 	markerCluster.addLayer(marker);
     return marker;
 }
