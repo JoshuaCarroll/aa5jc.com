@@ -171,7 +171,7 @@ function newMarker(node, description, lat, lon, type) {
 		popupContent += "<b>EchoLink " + node + "</b><br>" + description;
 	}
 
-	const marker = L.marker([lat, lon], NewMarkerIcon).bindPopup();
+	const marker = L.marker([lat, lon], NewMarkerIcon).bindPopup(popupContent);
 	markerCluster.addLayer(marker);
     return marker;
 }
