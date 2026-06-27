@@ -162,9 +162,11 @@ const isNumeric = (val) => !isNaN(parseFloat(val)) && isFinite(val);
 function newMarker(node, description, lat, lon, type) {
 	var NewMarkerIcon = { icon: iconReceiving };
 
+	/*
 	if (type == "echolink") {
 		NewMarkerIcon = { icon: iconComputer };
 	}
+		*/
 
 	const marker = L.marker([lat, lon], NewMarkerIcon).bindPopup(description + "<br>" + "node " + node);
 	markerCluster.addLayer(marker);
