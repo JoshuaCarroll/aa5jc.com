@@ -94,7 +94,7 @@ function addMarker(node) {
 
 	const markerName = markerNamePrefix + nodeNumber;
 	if (!mapObjects.markers.get(markerName)) {
-		mapObjects.markers.set(markerName, newMarker(nodeNumber, node.desc, node.lat, node.lon));
+		mapObjects.markers.set(markerName, newMarker(nodeNumber, node.desc, node.lat, node.lon, node.type));
 	}
 }
 
@@ -161,14 +161,17 @@ const isNumeric = (val) => !isNaN(parseFloat(val)) && isFinite(val);
 
 function newMarker(node, description, lat, lon, type) {
 	var NewMarkerIcon = { icon: iconReceiving };
+	var popupContent = "<b>Node " + node + "</b><br>" + description;
 
-	/*
-	if (type == "echolink") {
-		NewMarkerIcon = { icon: iconComputer };
+	if (type == "asl") {
+		popupContent += "<b>AllStar Node " + node + "</b><br>" + description;
 	}
-		*/
+	else if (type == "echolink") {
+		NewMarkerIcon = { icon: iconComputer };
+		popupContent += "<b>EchoLink " + node + "</b><br>" + description;
+	}
 
-	const marker = L.marker([lat, lon], NewMarkerIcon).bindPopup(description + "<br>" + "node " + node);
+	const marker = L.marker([lat, lon], NewMarkerIcon).bindPopup();
 	markerCluster.addLayer(marker);
     return marker;
 }
