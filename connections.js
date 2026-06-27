@@ -164,11 +164,11 @@ function newMarker(node, description, lat, lon, type) {
 	var popupContent = "<b>Node " + node + "</b><br>" + description;
 
 	if (type == "asl") {
-		popupContent += "<b>AllStar Node " + node + "</b><br>" + description;
+		popupContent = "<b>AllStar Node " + node + "</b><br>" + description;
 	}
 	else if (type == "echolink") {
 		NewMarkerIcon = { icon: iconComputer };
-		popupContent += "<b>EchoLink " + node + "</b><br>" + description;
+		popupContent = "<b>EchoLink " + node + "</b><br>" + description;
 	}
 
 	const marker = L.marker([lat, lon], NewMarkerIcon).bindPopup(popupContent);
