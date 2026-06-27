@@ -164,7 +164,7 @@ function newMarker(node, description, lat, lon, type) {
 	var popupContent = "<b>Node " + node + "</b><br>" + description;
 
 	if (type == "asl") {
-		popupContent = "<b>AllStar Node " + node + "</b><br>" + description;
+		popupContent = "<b>AllStarLink " + node + "</b><br>" + description;
 	}
 	else if (type == "echolink") {
 		NewMarkerIcon = { icon: iconComputer };
