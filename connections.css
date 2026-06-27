@@ -58,11 +58,12 @@ body {
     }
 
     #map .icon-receiving {
-        background-image: url("/icons/computer.png");
+        
     }
 
     #map .icon-computer {
         opacity: 0.75;
+        background-image: url("/icons/computer.png");
     }
 
     #map .icon-transmitting {
