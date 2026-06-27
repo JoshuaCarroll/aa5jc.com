@@ -165,9 +165,8 @@ function newMarker(node, description, lat, lon, type) {
 	if (type == "echolink") {
 		NewMarkerIcon = { icon: iconComputer };
 	}
-	
 
-	const marker = L.marker([lat, lon], NewMarkerIcon).bindPopup();
+	const marker = L.marker([lat, lon], NewMarkerIcon).bindPopup(description + "<br>" + "node " + node);
 	markerCluster.addLayer(marker);
     return marker;
 }
