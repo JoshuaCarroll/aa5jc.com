@@ -1,1 +1,1 @@
-{"version":"1782519871", "message":"Refactor newMarker function to simplify icon assignment logic and improve readability"}
+{"version":"1782520949", "message":"Enhance addMarker and newMarker functions to include node type in marker creation and popup content"}
