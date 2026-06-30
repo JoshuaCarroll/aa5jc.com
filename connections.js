@@ -16,6 +16,11 @@ if (screen.height == "480") {
 	mapZoomLevel = 5;
 }
 
+const mapObjects = {
+    markers: new Map(),
+    lines: new Map()
+};
+
 $(function () {
 	loadAllstarConnections();
 	//loadWeatherAlerts();
