@@ -147,12 +147,26 @@ const weatherStyleMap = {
 };
 
 $(function () {
-	$("#divLoadingContainer").hide();
 	loadAllstarConnections();
+	loadWeatherRadar();
 	loadWeatherAlerts();
 });
 
+function loadWeatherRadar() {
+    status('Loading weather radar...');
+    // Add the NWS Quality Controlled Radar Base Reflectivity Layer via WMS
+    var nwsRadar = L.tileLayer.wms('https://noaa.gov?', {
+        layers: '0', // Specifies the Base Reflectivity layer
+        format: 'image/png',
+        transparent: true,
+        opacity: 0.7,
+        attribution: 'NOAA/NWS'
+    }).addTo(map);
+    status('');
+}
+
 function loadWeatherAlerts() {
+    status('Loading weather alerts...');
 	const geoJsonUrl = 'https://api.weather.gov/alerts/active?status=actual&message_type=alert,update&area=MO,TN,MS,LA,TX,OK,AR&urgency=Immediate&severity=Extreme,Severe';
 	$.getJSON(geoJsonUrl, geojsonData => {
 		L.geoJSON(geojsonData, {
@@ -166,6 +180,7 @@ function loadWeatherAlerts() {
 
 		setTimeout(loadWeatherAlerts, howOftenToUpdateWeather * 1000);
 	});
+    status('');
 }
 
 function getWeatherStyle(feature) {
@@ -178,6 +193,7 @@ function getWeatherStyle(feature) {
 }
 
 function loadAllstarConnections() {
+    status('Loading AllStarLink connections...');
 	const geoJsonUrl = 'https://hub.aa5jc.com/allmon3/netmap.php?format=geojson';
 	$.getJSON(geoJsonUrl, geojsonData => {
 		$('#tbodyConnections').empty();
@@ -188,6 +204,7 @@ function loadAllstarConnections() {
 
 		setTimeout(loadAllstarConnections, howOftenToUpdateNodes * 1000);
 	});
+    status('');
 }
 
 function addMarker(feature) {
@@ -235,6 +252,9 @@ function newTableRow({ node, callsign, desc }) {
 </tr>`;
 }
 
+function status(message) {
+    $('#statusBar').text(message);
+}
 // _____ Leaflet Map Functions ____________________________________________________________________________________________________________
 
 // Initialize the map
