@@ -252,12 +252,11 @@ var markerCluster = L.markerClusterGroup({
 	iconCreateFunction: function (cluster) {
 		return L.divIcon({ html: cluster.getChildCount(), className: 'icon-receiving', iconSize: L.point(iconWidth, iconHeight) });
 	}
-});
+}).attribution.addAttribution('Powered by <a href="https://github.com/JoshuaCarroll/allmon3-netmap">NetMap</a>');
 map.addLayer(markerCluster);
 
 L.maplibreGL({
-	style: 'https://tiles.openfreemap.org/styles/dark',
-	attribution: 'Powered by <a href="https://github.com/JoshuaCarroll/allmon3-netmap">NetMap</a> | <a href="https://openfreemap.org/">OpenFreeMap</a> | <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+	style: 'https://tiles.openfreemap.org/styles/dark'
 }).addTo(map);
 
 var iconDisconnectedNode = L.divIcon({
