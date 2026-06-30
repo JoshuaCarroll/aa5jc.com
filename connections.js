@@ -1,27 +1,21 @@
-﻿console.clear();
-
-var markerNamePrefix = "m";
+﻿var markerNamePrefix = "m";
 var tableRowNamePrefix = "t";
 
-var howOftenToUpdateNodes = 60000; // milliseconds
+var howOftenToUpdateNodes = 	70; // seconds
+var howOftenToUpdateWeather = 60; // seconds
 
 var iconHeight = 30;
 var iconWidth = 30;
 
-var lineColors = ['#F7BD5A','#FFCC99','#FFFF33','#FFFF9C','#CD6363','#FF9C00','#CC99CC','#ff9f63','#646DCC','#9C9CFF','#FF9C00','#3399FF','#99CCFF','#ED884C','#FFFFCC','#B1957A','#F5ED00','#DDFFFF'];
-
 var mapZoomLevel = 7;
 if (screen.height == "480") {
-	zoomLevel = 5;
+	mapZoomLevel = 5;
 }
 
 var mapCenter = [34.7, -92.5]; // Default to Arkansas
 
 // ____________________________________________________________________________________________________________
 
-var numberOfLinesCreated = 0;
-var nodeCache = {};
-var activeTransmittersCache = [];
 const mapObjects = {
     markers: new Map(),
     lines: new Map()
@@ -29,6 +23,7 @@ const mapObjects = {
 
 $(function () {
 	loadAllstarConnections();
+	loadWeatherAlerts();
 });
 
 function loadWeatherAlerts() {
@@ -157,92 +152,70 @@ function loadWeatherAlerts() {
 				}
 			}
 		}).addTo(map);	
-	});
-}
-
-
-function loadAllstarConnections() {
-	$.getJSON("https://hub.aa5jc.com/allmon3/netmap.php", function (data) {
-		
-		updateTable(data.nodes);
-		updateMap(data.nodes);
-
-		$("#divLoadingContainer").hide();
-		nodeCache = data.nodes;  // Update the cache with the latest data
 
 		// Set up periodic updates
 		setTimeout(function () {
 			loadAllstarConnections();
-		}, howOftenToUpdateNodes);
+		}, howOftenToUpdateWeather * 1000); // Convert seconds to milliseconds for setTimeout
 	});
 }
 
-function updateMap(nodes) {
-	// Remove markers that are no longer in the data
-	for (const key in nodeCache) {
-		if (!nodes.hasOwnProperty(key)) {
-			removeMarker(key);
-		}
-	}
+function loadAllstarConnections() {
+	var geoJsonUrl = "https://hub.aa5jc.com/allmon3/netmap.php?format=geojson";
+	$.getJSON(geoJsonUrl, function (geojsonData) {
+		$("#tbodyConnections").empty();
 
-	// Add markers for new nodes
-	for (const key in nodes) {
-		if (!nodeCache.hasOwnProperty(key)) {
-			addMarker(nodes[key]);
-		}
-	}
+		L.geoJSON(geojsonData, {
+			pointToLayer: function (feature, latlng) {
+				var icon = { icon: iconTower };
+				if (feature.properties && feature.properties.type) {
+					switch (feature.properties.type) {
+						case 'asl':
+							icon = { icon: iconTower };
+							break;
+						case 'echolink':
+							icon = { icon: iconComputer };
+							break;
+						default:
+							icon = { icon: iconTower };
+					}
+				}
+				const marker = L.marker([latlng.lat, latlng.lng], icon);
+				markerCluster.addLayer(marker);
+			},
+			onEachFeature: function (feature, layer) {
+				layer.bindPopup("<b>Node " + feature.properties.node + "</b><br>" + feature.properties.description);
+				$("#tbodyConnections").append(newTableRow(feature.properties));
+			},
+			style: function(feature) {
+				if (feature.properties && feature.properties.type){
+					// Customize the style based on the feature type
+				}
+			}
+		}).addTo(map);	
+
+		// Set up periodic updates
+		setTimeout(function () {
+			loadAllstarConnections();
+		}, howOftenToUpdateNodes * 1000); // Convert seconds to milliseconds for setTimeout
+	});
 }
 
-function updateTable(nodes) {
-	$("#tbodyConnections").empty();
-
-	for (const key in nodes) {
-		const node = nodes[key];
-		$("#tbodyConnections").append(
-			"<tr id='" + tableRowNamePrefix + node.node + "'>"
-			+ "  <td><a href='https://stats.allstarlink.org/stats/" + node.node + "' target='_blank'>" + node.node + "</a></td>"
-			+ "  <td><a href='https://www.qrz.com/db/" + node.callsign + "' target='_blank'>" + node.callsign + "</a></td>"
-			+ "  <td>" + node.desc + "</td>"
-			+ "</tr>"
-		);
-	}
-}
-
-function addMarker(node) {
-	if (!node) return;
-
-	const nodeNumber = node.node;
-
-	// If it's a private node, skip it
-	if (nodeNumber < 2000) return;
-
-	if (!node.lat || !node.lon) {
-		return;
-	}
-
-	const markerName = markerNamePrefix + nodeNumber;
-	if (!mapObjects.markers.get(markerName)) {
-		mapObjects.markers.set(markerName, newMarker(nodeNumber, node.desc, node.lat, node.lon, node.type));
-	}
-}
-
-function removeMarker(nodeNumber) {
-	const markerName = markerNamePrefix + nodeNumber;
-	const marker = mapObjects.markers.get(markerName);
-
-	if (marker) {
-		if (marker instanceof L.Marker) {
-			markerCluster.removeLayer(marker);
-		}
-
-		mapObjects.markers.delete(markerName);
-	}
+function newTableRow(featureProperties) {
+	return "<tr id='" + tableRowNamePrefix + featureProperties.node + "'>"
+	+ "  <td><a href='https://stats.allstarlink.org/stats/" + featureProperties.node + "' target='_blank'>" + featureProperties.node + "</a></td>"
+	+ "  <td><a href='https://www.qrz.com/db/" + featureProperties.callsign + "' target='_blank'>" + featureProperties.callsign + "</a></td>"
+	+ "  <td>" + featureProperties.desc + "</td>"
+	+ "</tr>"
 }
 
 // _____ Leaflet Map Functions ____________________________________________________________________________________________________________
 
+// Initialize the map
 var map = L.map("map", { maxZoom: 18 }).setView(mapCenter, mapZoomLevel);
 
+// Initialize the marker cluster group
+// This facilitates clustering of markers on the map for better visualization and performance.
 var markerCluster = L.markerClusterGroup({
 	spiderfyOnMaxZoom: true,
 	showCoverageOnHover: false,
@@ -267,14 +240,8 @@ var iconDisconnectedNode = L.divIcon({
 	popupAnchor: [0, -1 * iconHeight]
 });
 
-var iconReceiving = L.divIcon({
+var iconTower = L.divIcon({
 	className: 'icon-receiving',
-	iconAnchor: [iconWidth / 2, iconHeight],
-	popupAnchor: [0, -1 * iconHeight]
-});
-
-var iconTransmitting = L.divIcon({
-	className: 'icon-transmitting',
 	iconAnchor: [iconWidth / 2, iconHeight],
 	popupAnchor: [0, -1 * iconHeight]
 });
@@ -284,60 +251,3 @@ var iconComputer = L.divIcon({
 	iconAnchor: [iconWidth / 2, iconHeight],
 	popupAnchor: [0, -1 * iconHeight]
 });
-
-const isNumeric = (val) => !isNaN(parseFloat(val)) && isFinite(val);
-
-function newMarker(node, description, lat, lon, type) {
-	var NewMarkerIcon = { icon: iconReceiving };
-	var popupContent = "<b>Node " + node + "</b><br>" + description;
-
-	if (type == "asl") {
-		popupContent = "<b>AllStarLink " + node + "</b><br>" + description;
-	}
-	else if (type == "echolink") {
-		NewMarkerIcon = { icon: iconComputer };
-		popupContent = "<b>EchoLink " + node + "</b><br>" + description;
-	}
-
-	const marker = L.marker([lat, lon], NewMarkerIcon).bindPopup(popupContent);
-	markerCluster.addLayer(marker);
-    return marker;
-}
-
-function newLine(lineKey, pointA, pointB, options = {}) {
-	// Ensure pointA and pointB are arrays in [lat, lng] format
-	const latlngs = [pointA, pointB];
-
-	// Draw the line with optional styling
-	const line = L.polyline(latlngs, {
-		color: options.color || getNextColor(),
-		weight: options.weight || 3,
-		opacity: options.opacity || 0.7,
-		dashArray: options.dashArray || null
-	});
-	line.addTo(map);
-
-	mapObjects.lines.set(lineKey, line);
-
-	return line; // Return the line if you want to manipulate it later
-}
-
-function getNextColor() {
-	// Cycle through the line colors
-	const color = lineColors[numberOfLinesCreated % lineColors.length];
-	numberOfLinesCreated++;
-	return color;
-}
-
-function deleteLines(nodeNumber) {
-	for (const [key, line] of mapObjects.lines.entries()) {
-		if (key.includes('-' + nodeNumber + '-')) {
-			map.removeLayer(line);
-			mapObjects.lines.delete(key);
-		}
-	}
-}
-
-function getLineKey(a, b) {
-    return '-' + [a, b].sort().join('-') + '-'; // e.g., "-472350-65017-"
-}
