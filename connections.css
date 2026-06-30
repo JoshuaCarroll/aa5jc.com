@@ -30,9 +30,9 @@ body {
 
     .iconPinRed, .iconPinOrange, .iconPinYellow, .iconPinGreen, .iconPinBlue, .iconPinIndigo, .iconPinViolet {
         display: inline-block;
-        height: 30px !important;
-        width: 30px !important;
-        background-size: 30px 30px;
+        height: 45px !important;
+        width: 45px !important;
+        background-size: 45px 45px;
     }
 
     .iconPinRed {
