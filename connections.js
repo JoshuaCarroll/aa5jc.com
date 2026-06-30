@@ -22,6 +22,16 @@ const iconOptions = {
     popupAnchor: [0, -iconHeight]
 };
 
+const wxTooltipOptions = {
+	 direction: 'top',
+	 offset: [0, 0]
+};
+
+const nodeTooltipOptions = {
+	 direction: 'top',
+	 offset: [0, -iconHeight]
+};
+
 const weatherStyleMap = {
     'Tsunami Warning': '#FD6347',
     'Tornado Warning': '#FF0000',
@@ -148,7 +158,7 @@ function loadWeatherAlerts() {
 		L.geoJSON(geojsonData, {
 			onEachFeature(feature, layer) {
 				if (feature.properties && feature.properties.headline && feature.properties.event) {
-					layer.bindPopup(feature.properties.headline).bindTooltip(feature.properties.event, { direction: 'top', offset: [0, -1 * iconHeight] });
+					layer.bindPopup(feature.properties.headline).bindTooltip(feature.properties.event, wxTooltipOptions);
 				}
 			},
 			style: getWeatherStyle
@@ -192,7 +202,7 @@ function addMarker(feature) {
 		const markerIcon = { icon: type === 'echolink' ? iconComputer : iconTower };
 		const typeLabel = type === 'asl' ? 'AllStarLink' : type === 'echolink' ? 'EchoLink' : 'Node';
 		const popupContent = `<b>${typeLabel} ${node}</b><br>${desc}`;
-		const marker = L.marker([lat, lon], markerIcon).bindPopup(popupContent).bindTooltip(`${typeLabel} ${node}`);
+		const marker = L.marker([lat, lon], markerIcon).bindPopup(popupContent).bindTooltip(`${typeLabel} ${node}`, nodeTooltipOptions);
 
 		markerCluster.addLayer(marker);
 		mapObjects.markers.set(markerName, marker);
