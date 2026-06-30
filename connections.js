@@ -205,43 +205,54 @@ function loadAllstarConnections() {
     status();
 }
 
-const iconPin = L.divIcon({
-	iconAnchor: [iconWidth / 2, iconHeight],
-	popupAnchor: [0, -iconHeight],
-    className: "iconPinRed"
-});
+function getMarkerIcon(type) {
+    let className = "iconPinRed";
+
+    switch (type) {
+        case 'asl':
+            className = "iconPinGreen";
+            break;
+        case 'echolink':
+            className = "iconPinBlue";
+            break;
+        case 'repeater':
+            className = "iconPinYellow";
+            break;
+    }
+
+    return L.divIcon({
+        className,
+        iconAnchor: [iconWidth / 2, iconHeight],
+        popupAnchor: [0, -iconHeight]
+    });
+}
 
 function addMarker(feature) {
 	if (!feature || !feature.properties || !feature.properties.lat || !feature.properties.lon) {
 		return;
 	}
 
-    const markerIcon = Object.create(iconPin);
+    const markerIcon = getMarkerIcon(feature.properties.type);
     var typeLabel = "Node"; // Default label for markers
 
     switch (feature.properties.type) {
         case 'asl':
-            markerIcon.className = "iconPinGreen"; // Green for AllStarLink nodes
             typeLabel = "AllStarLink";
             break;
         case 'echolink':
-            markerIcon.className = "iconPinBlue"; // Blue for EchoLink nodes
             typeLabel = "EchoLink";
             break;
         case 'repeater':
-            markerIcon.className = "iconPinYellow"; // Yellow for repeater nodes
             typeLabel = "Repeater";
             break;
-        default:
-            markerIcon.className = "iconPinRed"; // Red for other types of nodes
     }
 
-	const { node, lat, lon, desc, type } = feature.properties;
+	const { node, lat, lon, desc } = feature.properties;
 	const markerName = `${markerNamePrefix}${node}`;
 
 	if (!mapObjects.markers.has(markerName)) {
 		const popupContent = `<b>${typeLabel} ${node}</b><br>${desc}`;
-		const marker = L.marker([lat, lon], markerIcon).bindPopup(popupContent).bindTooltip(`${typeLabel} ${node}`, nodeTooltipOptions);
+		const marker = L.marker([lat, lon], { icon: markerIcon }).bindPopup(popupContent).bindTooltip(`${typeLabel} ${node}`, nodeTooltipOptions);
 
 		markerCluster.addLayer(marker);
 		mapObjects.markers.set(markerName, marker);
