@@ -207,7 +207,7 @@ function addMarker(feature, latlng) {
 	const markerName = markerNamePrefix + feature.properties.node;
 	
 	if (!mapObjects.markers.get(markerName)) {
-		var NewMarkerIcon = { icon: iconReceiving };
+		var NewMarkerIcon = { icon: iconTower };
 		var popupContent = "<b>Node " + feature.properties.node + "</b><br>" + feature.properties.desc;
 
 		if (feature.properties.type == "asl") {
