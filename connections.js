@@ -154,7 +154,7 @@ $(function () {
 
 function loadWeatherRadar() {
     status('Loading weather radar...');
-    var nexrad = new L.tileLayer.wms("http://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi", {
+    var nexrad = new L.tileLayer.wms("https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi", {
         layers: 'nexrad-n0r',
         format: 'image/png',
         transparent: true,
