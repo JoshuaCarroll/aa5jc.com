@@ -210,7 +210,7 @@ function addMarker(feature) {
 		return;
 	}
 
-    const markerColor = "#ff0000"; // Default color for markers
+    var markerColor = "#ff0000"; // Default color for markers
 
     switch (feature.properties.type) {
         case 'asl':
