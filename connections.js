@@ -16,14 +16,9 @@ var mapCenter = [34.7, -92.5]; // Default to Arkansas
 
 // ____________________________________________________________________________________________________________
 
-const mapObjects = {
-    markers: new Map(),
-    lines: new Map()
-};
-
 $(function () {
 	loadAllstarConnections();
-	loadWeatherAlerts();
+	//loadWeatherAlerts();
 });
 
 function loadWeatherAlerts() {
