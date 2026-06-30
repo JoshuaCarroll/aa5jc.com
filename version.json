@@ -1,1 +1,1 @@
-{"version":"1782780235", "message":"Refactor marker handling and update map initialization logic"}
+{"version":"1782780436", "message":"Refactor loadAllstarConnections to use addMarker for pointToLayer"}
