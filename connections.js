@@ -252,7 +252,8 @@ var markerCluster = L.markerClusterGroup({
 	iconCreateFunction: function (cluster) {
 		return L.divIcon({ html: cluster.getChildCount(), className: 'icon-receiving', iconSize: L.point(iconWidth, iconHeight) });
 	}
-}).attribution.addAttribution('Powered by <a href="https://github.com/JoshuaCarroll/allmon3-netmap">NetMap</a>');
+});
+markerCluster.attribution.addAttribution('Powered by <a href="https://github.com/JoshuaCarroll/allmon3-netmap">NetMap</a>');
 map.addLayer(markerCluster);
 
 L.maplibreGL({
