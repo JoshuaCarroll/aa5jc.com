@@ -208,7 +208,7 @@ function loadAllstarConnections() {
 const iconPin = L.divIcon({
     iconSize: [iconWidth, iconHeight],
 	iconAnchor: [iconWidth / 2, iconHeight],
-	popupAnchor: [0, -1 * iconHeight]
+	popupAnchor: [0, -iconHeight]
 });
 
 function addMarker(feature) {
@@ -218,7 +218,6 @@ function addMarker(feature) {
 
     const markerIcon = Object.create(iconPin);
 
-    var markerColor = "#ffffff"; // Default color for markers
     var typeLabel = "Node"; // Default label for markers
 
     switch (feature.properties.type) {
@@ -302,7 +301,7 @@ var markerCluster = L.markerClusterGroup({
 	animateAddingMarkers: true,
 	maxClusterRadius: 15,
 	iconCreateFunction: function (cluster) {
-		return L.divIcon({ html: cluster.getChildCount(), className: 'icon-receiving', iconSize: L.point(iconWidth, iconHeight) });
+		return L.divIcon({ html: cluster.getChildCount(), className: 'iconPinBlue', iconSize: L.point(iconWidth, iconHeight) });
 	}
 });
 map.addLayer(markerCluster);

@@ -29,30 +29,44 @@ body {
 
     .iconPinRed {
         background-image: url("/icons/pin-red.png");
+        width: 30px;
+        height: 30px;
     }
 
     .iconPinOrange {
         background-image: url("/icons/pin-orange.png");
+        width: 30px;
+        height: 30px;
     }
 
     .iconPinYellow {
         background-image: url("/icons/pin-yellow.png");
+        width: 30px;
+        height: 30px;
     }
 
     .iconPinGreen {
         background-image: url("/icons/pin-green.png");
+        width: 30px;
+        height: 30px;
     }
 
     .iconPinBlue {
         background-image: url("/icons/pin-blue.png");
+        width: 30px;
+        height: 30px;
     }
 
     .iconPinIndigo {
         background-image: url("/icons/pin-indigo.png");
+        width: 30px;
+        height: 30px;
     }
 
     .iconPinViolet {
         background-image: url("/icons/pin-violet.png");
+        width: 30px;
+        height: 30px;
     }
 
 #divConnections {
