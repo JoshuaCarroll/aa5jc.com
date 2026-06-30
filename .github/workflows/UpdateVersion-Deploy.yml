@@ -2,17 +2,14 @@ name: Update version and deploy
 
 on:
   push:
-    branches: [main]
-    paths-ignore:
-      - 'version.json'  # Ignore changes to version.json to prevent infinite loops
-      - '.github/workflows/setVersion.yml'  # Ignore changes to this workflow file
+    branches: [dev]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -23,32 +20,34 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  update-version:
+  sync-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
+      - name: Checkout main branch
+        uses: actions/checkout@v4
         with:
+          ref: main
+          fetch-depth: 0
           token: ${{ secrets.GH_PAT }}
 
-      - name: Get latest commit message (3rd item)
-        id: get_commit
+      - name: Sync dev into main
         run: |
-          curl -s https://api.github.com/repos/JoshuaCarroll/aa5jc.com/commits | jq -r '.[1].commit.message' > commit_msg.txt
-          echo "commit_msg<<EOF" >> $GITHUB_ENV
-          cat commit_msg.txt >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+          git fetch origin dev main
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git merge --no-edit origin/dev || {
+            echo "Merge from dev into main failed."
+            exit 1
+          }
 
       - name: Update version.json
         run: |
+          commit_msg="$(git log -1 --pretty=%s)"
           echo "{\"version\":\"$(date +%s)\", \"message\":\"$commit_msg\"}" > version.json
 
-      - name: Commit and push version.json
+      - name: Commit and push main
         run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          
           git add version.json
           git commit -m "Update version.json" || echo "No changes to commit"
           git push origin HEAD:main
