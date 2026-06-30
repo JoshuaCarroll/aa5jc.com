@@ -1,8 +1,12 @@
-﻿var markerNamePrefix = "m";
-var tableRowNamePrefix = "t";
-
-var howOftenToUpdateNodes = 	70; // seconds
+﻿var howOftenToUpdateNodes = 	70; // seconds
 var howOftenToUpdateWeather = 60; // seconds
+
+var mapCenter = [34.7, -92.5]; // Default to Arkansas
+
+// ____________________________________________________________________________________________________________
+
+var markerNamePrefix = "m";
+var tableRowNamePrefix = "t";
 
 var iconHeight = 30;
 var iconWidth = 30;
@@ -11,10 +15,6 @@ var mapZoomLevel = 7;
 if (screen.height == "480") {
 	mapZoomLevel = 5;
 }
-
-var mapCenter = [34.7, -92.5]; // Default to Arkansas
-
-// ____________________________________________________________________________________________________________
 
 $(function () {
 	loadAllstarConnections();
@@ -195,6 +195,46 @@ function loadAllstarConnections() {
 			loadAllstarConnections();
 		}, howOftenToUpdateNodes * 1000); // Convert seconds to milliseconds for setTimeout
 	});
+}
+
+function removeMarker(nodeNumber) {
+	const markerName = markerNamePrefix + nodeNumber;
+	const marker = mapObjects.markers.get(markerName);
+
+	if (marker) {
+		if (marker instanceof L.Marker) {
+			markerCluster.removeLayer(marker);
+		}
+
+		mapObjects.markers.delete(markerName);
+	}
+}
+
+function addMarker(feature, latlng) {
+	// Only add markers for nodes with valid coordinates and node numbers greater than or equal to 2000
+	if (!feature || !feature.properties || !feature.properties.lat || !feature.properties.lon) {
+		return;
+	}
+
+	const markerName = markerNamePrefix + feature.properties.node;
+	
+	if (!mapObjects.markers.get(markerName)) {
+		var NewMarkerIcon = { icon: iconReceiving };
+		var popupContent = "<b>Node " + feature.properties.node + "</b><br>" + feature.properties.desc;
+
+		if (feature.properties.type == "asl") {
+			popupContent = "<b>AllStarLink " + feature.properties.node + "</b><br>" + feature.properties.desc;
+		}
+		else if (feature.properties.type == "echolink") {
+			NewMarkerIcon = { icon: iconComputer };
+			popupContent = "<b>EchoLink " + feature.properties.node + "</b><br>" + feature.properties.desc;
+		}
+
+		const marker = L.marker([feature.properties.lat, feature.properties.lon], NewMarkerIcon).bindPopup(popupContent);
+		markerCluster.addLayer(marker);
+		
+		mapObjects.markers.set(markerName, marker);
+	}
 }
 
 function newTableRow(featureProperties) {
