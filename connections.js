@@ -29,7 +29,7 @@ const wxTooltipOptions = {
 
 const nodeTooltipOptions = {
 	 direction: 'top',
-	 offset: [0, -iconHeight]
+	 offset: [0, -iconHeight - 5]
 };
 
 const weatherStyleMap = {
@@ -160,7 +160,7 @@ function loadWeatherRadar() {
         transparent: true,
         attribution: "Weather data &copy; 2015 IEM Nexrad"
     }).addTo(map);
-    status('');
+    status();
 }
 
 function loadWeatherAlerts() {
@@ -178,7 +178,7 @@ function loadWeatherAlerts() {
 
 		setTimeout(loadWeatherAlerts, howOftenToUpdateWeather * 1000);
 	});
-    status('');
+    status();
 }
 
 function getWeatherStyle(feature) {
@@ -202,7 +202,7 @@ function loadAllstarConnections() {
 
 		setTimeout(loadAllstarConnections, howOftenToUpdateNodes * 1000);
 	});
-    status('');
+    status();
 }
 
 function addMarker(feature) {
@@ -210,11 +210,34 @@ function addMarker(feature) {
 		return;
 	}
 
+    const markerColor = "#ff0000"; // Default color for markers
+
+    switch (feature.properties.type) {
+        case 'asl':
+            markerColor = "#00ff00"; // Green for AllStarLink nodes
+            break;
+        case 'echolink':
+            markerColor = "#0c67de"; // Blue for EchoLink nodes
+            break;
+        case 'repeater':
+            markerColor = "#ffff00"; // Yellow for repeater nodes
+            break;
+        default:
+            markerColor = "#ff0000"; // Red for other types of nodes
+    }
+
+    const markerIcon = L.divIcon({
+        html: `<div class="pin" style="--pin-color: ${markerColor};"></div>`,
+        className: '',
+        iconSize: [24, 36],
+        iconAnchor: [12, 36],
+        popupAnchor: [0, -36],
+    });
+
 	const { node, lat, lon, desc, type } = feature.properties;
 	const markerName = `${markerNamePrefix}${node}`;
 
 	if (!mapObjects.markers.has(markerName)) {
-		const markerIcon = { icon: type === 'echolink' ? iconComputer : iconTower };
 		const typeLabel = type === 'asl' ? 'AllStarLink' : type === 'echolink' ? 'EchoLink' : 'Node';
 		const popupContent = `<b>${typeLabel} ${node}</b><br>${desc}`;
 		const marker = L.marker([lat, lon], markerIcon).bindPopup(popupContent).bindTooltip(`${typeLabel} ${node}`, nodeTooltipOptions);
@@ -251,10 +274,14 @@ function newTableRow({ node, callsign, desc }) {
 }
 
 function status(message) {
-    $('#statusBar').text(message);
+    
     // Write the message to the debug console only if the message is not empty
     if (message) {
         console.debug(message);
+        $('#statusBar').text(message);
+    }
+    else {
+        $('#statusBar').text("");
     }
 }
 // _____ Leaflet Map Functions ____________________________________________________________________________________________________________
