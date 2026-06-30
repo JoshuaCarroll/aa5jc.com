@@ -27,13 +27,32 @@ body {
     float: left;
 }
 
-    #map .pin {
-        width: 30px;
-        height: 30px;
-        background-color: var(--pin-color);
-        background-image: url('icons/pin-stem.png');
-        -webkit-mask: url('icons/pin-ball.png') no-repeat center / contain;
-        mask: url('icons/pin.png') no-repeat center / contain;
+    .iconPinRed {
+        background-image: url("/icons/pin-red.png");
+    }
+
+    .iconPinOrange {
+        background-image: url("/icons/pin-orange.png");
+    }
+
+    .iconPinYellow {
+        background-image: url("/icons/pin-yellow.png");
+    }
+
+    .iconPinGreen {
+        background-image: url("/icons/pin-green.png");
+    }
+
+    .iconPinBlue {
+        background-image: url("/icons/pin-blue.png");
+    }
+
+    .iconPinIndigo {
+        background-image: url("/icons/pin-indigo.png");
+    }
+
+    .iconPinViolet {
+        background-image: url("/icons/pin-violet.png");
     }
 
 #divConnections {
