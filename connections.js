@@ -159,7 +159,7 @@ function loadWeatherRadar() {
         format: 'image/png',
         transparent: true,
         attribution: "Weather data &copy; 2015 IEM Nexrad"
-    });
+    }).addTo(map);
     status('');
 }
 
