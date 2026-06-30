@@ -19,6 +19,7 @@ var mapCenter = [34.7, -92.5]; // Default to Arkansas
 $(function () {
 	loadAllstarConnections();
 	//loadWeatherAlerts();
+	$("#divLoadingContainer").hide();
 });
 
 function loadWeatherAlerts() {
@@ -177,10 +178,10 @@ function loadAllstarConnections() {
 				}
 				const marker = L.marker([latlng.lat, latlng.lng], icon);
 				markerCluster.addLayer(marker);
+				$("#tbodyConnections").append(newTableRow(feature.properties));
 			},
 			onEachFeature: function (feature, layer) {
 				layer.bindPopup("<b>Node " + feature.properties.node + "</b><br>" + feature.properties.description);
-				$("#tbodyConnections").append(newTableRow(feature.properties));
 			},
 			style: function(feature) {
 				if (feature.properties && feature.properties.type){
