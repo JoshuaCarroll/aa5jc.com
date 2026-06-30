@@ -206,9 +206,9 @@ function loadAllstarConnections() {
 }
 
 const iconPin = L.divIcon({
-    iconSize: [iconWidth, iconHeight],
 	iconAnchor: [iconWidth / 2, iconHeight],
-	popupAnchor: [0, -iconHeight]
+	popupAnchor: [0, -iconHeight],
+    className: "iconPinRed"
 });
 
 function addMarker(feature) {
@@ -217,7 +217,6 @@ function addMarker(feature) {
 	}
 
     const markerIcon = Object.create(iconPin);
-
     var typeLabel = "Node"; // Default label for markers
 
     switch (feature.properties.type) {

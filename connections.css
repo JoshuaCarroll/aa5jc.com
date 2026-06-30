@@ -34,37 +34,37 @@ body {
     }
 
     .iconPinOrange {
-        background-image: url("/icons/pin-orange.png");
+        background-image: url("icons/pin-orange.png");
         width: 30px;
         height: 30px;
     }
 
     .iconPinYellow {
-        background-image: url("/icons/pin-yellow.png");
+        background-image: url("icons/pin-yellow.png");
         width: 30px;
         height: 30px;
     }
 
     .iconPinGreen {
-        background-image: url("/icons/pin-green.png");
+        background-image: url("icons/pin-green.png");
         width: 30px;
         height: 30px;
     }
 
     .iconPinBlue {
-        background-image: url("/icons/pin-blue.png");
+        background-image: url("icons/pin-blue.png");
         width: 30px;
         height: 30px;
     }
 
     .iconPinIndigo {
-        background-image: url("/icons/pin-indigo.png");
+        background-image: url("icons/pin-indigo.png");
         width: 30px;
         height: 30px;
     }
 
     .iconPinViolet {
-        background-image: url("/icons/pin-violet.png");
+        background-image: url("icons/pin-violet.png");
         width: 30px;
         height: 30px;
     }
