@@ -147,8 +147,8 @@ function loadWeatherAlerts() {
 	$.getJSON(geoJsonUrl, geojsonData => {
 		L.geoJSON(geojsonData, {
 			onEachFeature(feature, layer) {
-				if (feature.properties && feature.properties.headline) {
-					layer.bindPopup(feature.properties.headline);
+				if (feature.properties && feature.properties.headline && feature.properties.event) {
+					layer.bindPopup(feature.properties.headline).bindTooltip(feature.properties.event);
 				}
 			},
 			style: getWeatherStyle
@@ -173,14 +173,32 @@ function loadAllstarConnections() {
 		$('#tbodyConnections').empty();
 
 		L.geoJSON(geojsonData, {
-			pointToLayer: addMarker,
-			onEachFeature(feature, layer) {
-				layer.bindPopup(`<b>Node ${feature.properties.node}</b><br>${feature.properties.description}`);
-			}
+			pointToLayer: addMarker
 		}).addTo(map);
 
 		setTimeout(loadAllstarConnections, howOftenToUpdateNodes * 1000);
 	});
+}
+
+function addMarker(feature) {
+	if (!feature || !feature.properties || !feature.properties.lat || !feature.properties.lon) {
+		return;
+	}
+
+	const { node, lat, lon, desc, type } = feature.properties;
+	const markerName = `${markerNamePrefix}${node}`;
+
+	if (!mapObjects.markers.has(markerName)) {
+		const markerIcon = { icon: type === 'echolink' ? iconComputer : iconTower };
+		const typeLabel = type === 'asl' ? 'AllStarLink' : type === 'echolink' ? 'EchoLink' : 'Node';
+		const popupContent = `<b>${typeLabel} ${node}</b><br>${desc}`;
+		const marker = L.marker([lat, lon], markerIcon).bindPopup(popupContent).bindTooltip(`${typeLabel} ${node}`);
+
+		markerCluster.addLayer(marker);
+		mapObjects.markers.set(markerName, marker);
+	}
+
+	$('#tbodyConnections').append(newTableRow(feature.properties));
 }
 
 function removeMarker(nodeNumber) {
@@ -196,27 +214,6 @@ function removeMarker(nodeNumber) {
 	}
 
 	mapObjects.markers.delete(markerName);
-}
-
-function addMarker(feature) {
-	if (!feature || !feature.properties || !feature.properties.lat || !feature.properties.lon) {
-		return;
-	}
-
-	const { node, lat, lon, desc, type } = feature.properties;
-	const markerName = `${markerNamePrefix}${node}`;
-
-	if (!mapObjects.markers.has(markerName)) {
-		const markerIcon = { icon: type === 'echolink' ? iconComputer : iconTower };
-		const typeLabel = type === 'asl' ? 'AllStarLink' : type === 'echolink' ? 'EchoLink' : 'Node';
-		const popupContent = `<b>${typeLabel} ${node}</b><br>${desc}`;
-		const marker = L.marker([lat, lon], markerIcon).bindPopup(popupContent);
-
-		markerCluster.addLayer(marker);
-		mapObjects.markers.set(markerName, marker);
-	}
-
-	$('#tbodyConnections').append(newTableRow(feature.properties));
 }
 
 function newTableRow({ node, callsign, desc }) {
