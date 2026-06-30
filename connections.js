@@ -154,14 +154,12 @@ $(function () {
 
 function loadWeatherRadar() {
     status('Loading weather radar...');
-    // Add the NWS Quality Controlled Radar Base Reflectivity Layer via WMS
-    var nwsRadar = L.tileLayer.wms('https://noaa.gov?', {
-        layers: '0', // Specifies the Base Reflectivity layer
+    var nexrad = new L.tileLayer.wms("http://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi", {
+        layers: 'nexrad-n0r',
         format: 'image/png',
         transparent: true,
-        opacity: 0.7,
-        attribution: 'NOAA/NWS'
-    }).addTo(map);
+        attribution: "Weather data &copy; 2015 IEM Nexrad"
+    });
     status('');
 }
 
