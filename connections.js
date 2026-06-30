@@ -162,24 +162,7 @@ function loadAllstarConnections() {
 		$("#tbodyConnections").empty();
 
 		L.geoJSON(geojsonData, {
-			pointToLayer: function (feature, latlng) {
-				var icon = { icon: iconTower };
-				if (feature.properties && feature.properties.type) {
-					switch (feature.properties.type) {
-						case 'asl':
-							icon = { icon: iconTower };
-							break;
-						case 'echolink':
-							icon = { icon: iconComputer };
-							break;
-						default:
-							icon = { icon: iconTower };
-					}
-				}
-				const marker = L.marker([latlng.lat, latlng.lng], icon);
-				markerCluster.addLayer(marker);
-				$("#tbodyConnections").append(newTableRow(feature.properties));
-			},
+			pointToLayer: addMarker,
 			onEachFeature: function (feature, layer) {
 				layer.bindPopup("<b>Node " + feature.properties.node + "</b><br>" + feature.properties.description);
 			},
