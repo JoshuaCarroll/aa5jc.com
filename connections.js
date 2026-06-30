@@ -148,7 +148,7 @@ function loadWeatherAlerts() {
 		L.geoJSON(geojsonData, {
 			onEachFeature(feature, layer) {
 				if (feature.properties && feature.properties.headline && feature.properties.event) {
-					layer.bindPopup(feature.properties.headline).bindTooltip(feature.properties.event);
+					layer.bindPopup(feature.properties.headline).bindTooltip(feature.properties.event, { direction: 'top', offset: [0, -1 * iconHeight] });
 				}
 			},
 			style: getWeatherStyle
