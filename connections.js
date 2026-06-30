@@ -23,7 +23,7 @@ const mapObjects = {
 
 $(function () {
 	loadAllstarConnections();
-	//loadWeatherAlerts();
+	loadWeatherAlerts();
 	$("#divLoadingContainer").hide();
 });
 
@@ -223,6 +223,8 @@ function addMarker(feature, latlng) {
 		
 		mapObjects.markers.set(markerName, marker);
 	}
+
+	newTableRow(feature.properties).appendTo("#tbodyConnections");
 }
 
 function newTableRow(featureProperties) {
