@@ -205,40 +205,43 @@ function loadAllstarConnections() {
     status();
 }
 
+const iconPin = L.divIcon({
+    iconSize: [iconWidth, iconHeight],
+	iconAnchor: [iconWidth / 2, iconHeight],
+	popupAnchor: [0, -1 * iconHeight]
+});
+
 function addMarker(feature) {
 	if (!feature || !feature.properties || !feature.properties.lat || !feature.properties.lon) {
 		return;
 	}
 
-    var markerColor = "#ff0000"; // Default color for markers
+    const markerIcon = Object.create(iconPin);
+
+    var markerColor = "#ffffff"; // Default color for markers
+    var typeLabel = "Node"; // Default label for markers
 
     switch (feature.properties.type) {
         case 'asl':
-            markerColor = "#00ff00"; // Green for AllStarLink nodes
+            markerIcon.className = "iconPinGreen"; // Green for AllStarLink nodes
+            typeLabel = "AllStarLink";
             break;
         case 'echolink':
-            markerColor = "#0c67de"; // Blue for EchoLink nodes
+            markerIcon.className = "iconPinBlue"; // Blue for EchoLink nodes
+            typeLabel = "EchoLink";
             break;
         case 'repeater':
-            markerColor = "#ffff00"; // Yellow for repeater nodes
+            markerIcon.className = "iconPinYellow"; // Yellow for repeater nodes
+            typeLabel = "Repeater";
             break;
         default:
-            markerColor = "#ff0000"; // Red for other types of nodes
+            markerIcon.className = "iconPinRed"; // Red for other types of nodes
     }
-
-    const markerIcon = L.divIcon({
-        html: `<div class="pin" style="--pin-color: ${markerColor};"></div>`,
-        className: '',
-        iconSize: [24, 36],
-        iconAnchor: [12, 36],
-        popupAnchor: [0, -36],
-    });
 
 	const { node, lat, lon, desc, type } = feature.properties;
 	const markerName = `${markerNamePrefix}${node}`;
 
 	if (!mapObjects.markers.has(markerName)) {
-		const typeLabel = type === 'asl' ? 'AllStarLink' : type === 'echolink' ? 'EchoLink' : 'Node';
 		const popupContent = `<b>${typeLabel} ${node}</b><br>${desc}`;
 		const marker = L.marker([lat, lon], markerIcon).bindPopup(popupContent).bindTooltip(`${typeLabel} ${node}`, nodeTooltipOptions);
 
@@ -307,21 +310,3 @@ map.addLayer(markerCluster);
 L.maplibreGL({
 	style: 'https://tiles.openfreemap.org/styles/dark'
 }).addTo(map);
-
-var iconDisconnectedNode = L.divIcon({
-	className: 'icon-antenna',
-	iconAnchor: [iconWidth / 2, iconHeight],
-	popupAnchor: [0, -1 * iconHeight]
-});
-
-var iconTower = L.divIcon({
-	className: 'icon-receiving',
-	iconAnchor: [iconWidth / 2, iconHeight],
-	popupAnchor: [0, -1 * iconHeight]
-});
-
-var iconComputer = L.divIcon({
-	className: 'icon-computer',
-	iconAnchor: [iconWidth / 2, iconHeight],
-	popupAnchor: [0, -1 * iconHeight]
-});
