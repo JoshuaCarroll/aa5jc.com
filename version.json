@@ -1,1 +1,1 @@
-{"version":"1782780792", "message":"Update marker icon in addMarker function to use iconTower"}
+{"version":"1782780968", "message":"Enable loading of weather alerts in the initial setup and append new table rows in addMarker function"}
