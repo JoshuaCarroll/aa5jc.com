@@ -252,6 +252,10 @@ function newTableRow({ node, callsign, desc }) {
 
 function status(message) {
     $('#statusBar').text(message);
+    // Write the message to the debug console only if the message is not empty
+    if (message) {
+        console.debug(message);
+    }
 }
 // _____ Leaflet Map Functions ____________________________________________________________________________________________________________
 
