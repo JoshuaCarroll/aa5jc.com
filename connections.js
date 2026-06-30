@@ -4,8 +4,8 @@ const mapCenter = [34.7, -92.5]; // Default to Arkansas
 
 const markerNamePrefix = 'm';
 const tableRowNamePrefix = 't';
-const iconHeight = 30;
-const iconWidth = 30;
+const iconHeight = 45;
+const iconWidth = 45;
 
 let mapZoomLevel = 7;
 if (screen.height === 480) {
