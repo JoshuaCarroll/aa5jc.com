@@ -163,7 +163,8 @@ function loadWeatherRadar() {
         layers: 'nexrad-n0r',
         format: 'image/png',
         transparent: true,
-        attribution: "Weather data &copy; 2015 IEM Nexrad"
+        attribution: "Weather data &copy; 2015 IEM Nexrad",
+        style: 'opacity: 0.7',
     }).addTo(map);
     status();
 }
@@ -192,7 +193,8 @@ function getWeatherStyle(feature) {
 	}
 
 	const color = weatherStyleMap[feature.properties.event];
-	return color ? { color } : {};
+
+	return color ? { color, opacity: 0.7 } : {};
 }
 
 function loadAllstarConnections() {
@@ -211,7 +213,8 @@ function loadAllstarConnections() {
 		}
 
 		L.geoJSON(geojsonData, {
-			pointToLayer: addMarker
+			pointToLayer: addMarker,
+            attribution: "Repeater data powered by <a href='https://github.com/JoshuaCarroll/allmon3-netmap'>NetMap</a>, <a href='https://www.allstarlink.org/'>AllStarLink</a>",
 		}).addTo(map);
 
 		updateRepeaterMarkers();
