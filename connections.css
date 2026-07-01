@@ -79,6 +79,35 @@ body {
         opacity: 0.5;
     }
 
+#map {
+    position: relative;
+}
+
+.map-context-menu {
+    position: absolute;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.9);
+    border: 1px solid #666;
+    border-radius: 4px;
+    padding: 8px 10px;
+    color: #fff;
+    font-size: 13px;
+    min-width: 160px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.map-context-menu label {
+    display: block;
+    margin: 4px 0;
+    cursor: pointer;
+}
+
+.map-context-menu .context-menu-title {
+    font-weight: bold;
+    margin-bottom: 6px;
+    color: #8fd0ff;
+}
+
 #divConnections {
     float: left;
     margin-left: 5px;
