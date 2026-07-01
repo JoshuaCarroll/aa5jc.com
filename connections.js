@@ -14,8 +14,12 @@ if (screen.height === 480) {
 
 const mapObjects = {
     markers: new Map(),
-    lines: new Map()
+    lines: new Map(),
+    repeaterMarkers: new Map()
 };
+
+let connectedAllStarNodes = new Set();
+let repeaterList = [];
 
 const iconOptions = {
     iconAnchor: [iconWidth / 2, iconHeight],
@@ -150,6 +154,7 @@ $(function () {
 	loadAllstarConnections();
 	loadWeatherRadar();
 	loadWeatherAlerts();
+	loadRepeaterList();
 });
 
 function loadWeatherRadar() {
@@ -196,10 +201,20 @@ function loadAllstarConnections() {
 	$.getJSON(geoJsonUrl, geojsonData => {
 		$('#tbodyConnections').empty();
 
+		connectedAllStarNodes = new Set();
+		if (geojsonData && Array.isArray(geojsonData.features)) {
+			geojsonData.features.forEach(feature => {
+				if (feature && feature.properties && feature.properties.node) {
+					connectedAllStarNodes.add(String(feature.properties.node));
+				}
+			});
+		}
+
 		L.geoJSON(geojsonData, {
 			pointToLayer: addMarker
 		}).addTo(map);
 
+		updateRepeaterMarkers();
 		setTimeout(loadAllstarConnections, howOftenToUpdateNodes * 1000);
 	});
     status();
@@ -224,6 +239,57 @@ function getMarkerIcon(type) {
         className,
         iconAnchor: [iconWidth / 2, iconHeight],
         popupAnchor: [0, -iconHeight]
+    });
+}
+
+function getRepeaterMarkerIcon(isConnected) {
+    return L.divIcon({
+        className: isConnected ? 'iconPinRepeaterConnected' : 'iconPinRepeaterDisconnected',
+        iconAnchor: [iconWidth / 2, iconHeight],
+        popupAnchor: [0, -iconHeight]
+    });
+}
+
+function loadRepeaterList() {
+    if (repeaterList.length) {
+        updateRepeaterMarkers();
+        return;
+    }
+
+    $.getJSON('repeater-list.json', data => {
+        repeaterList = Array.isArray(data) ? data : [];
+        updateRepeaterMarkers();
+    });
+}
+
+function updateRepeaterMarkers() {
+    repeaterList.forEach(repeater => {
+        if (!repeater || !repeater.latitude || !repeater.longitude) {
+            return;
+        }
+
+        const markerName = `repeater-${repeater.callsign}`;
+        const isConnected = Boolean(repeater.allstarNode && connectedAllStarNodes.has(String(repeater.allstarNode)));
+        let marker = mapObjects.repeaterMarkers.get(markerName);
+
+        if (!marker) {
+            const popupContent = `
+<b>${repeater.callsign}</b><br>
+Freq: ${repeater.frequency || 'n/a'}<br>
+Offset: ${repeater.offset || 'n/a'}<br>
+Tone: ${repeater.tone || 'n/a'}<br>
+City: ${repeater.city || 'n/a'}, ${repeater.state || 'n/a'}<br>
+AllStar Node: ${repeater.allstarNode || 'n/a'}
+`;
+            marker = L.marker([repeater.latitude, repeater.longitude], {
+                icon: getRepeaterMarkerIcon(isConnected)
+            }).bindPopup(popupContent).bindTooltip(`${repeater.callsign} (${repeater.frequency || 'n/a'})`, nodeTooltipOptions);
+
+            markerCluster.addLayer(marker);
+            mapObjects.repeaterMarkers.set(markerName, marker);
+        } else {
+            marker.setIcon(getRepeaterMarkerIcon(isConnected));
+        }
     });
 }
 
