@@ -169,7 +169,7 @@ function loadWeatherRadar() {
             format: 'image/png',
             transparent: true,
             attribution: "Weather data &copy; 2015 IEM Nexrad",
-            style: 'opacity: 0.7',
+            opacity: 0.7
         });
     }
 
@@ -209,7 +209,7 @@ function getWeatherStyle(feature) {
 
 	const color = weatherStyleMap[feature.properties.event];
 
-	return color ? { color, opacity: 0.7 } : {};
+	return color ? { color, opacity: 0.7, fillColor: color, fillOpacity: 0.25 } : {};
 }
 
 function loadAllstarConnections() {
