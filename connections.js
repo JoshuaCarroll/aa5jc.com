@@ -20,6 +20,10 @@ const mapObjects = {
 
 let connectedAllStarNodes = new Set();
 let repeaterList = [];
+let radarLayer = null;
+let weatherWarningsLayer = null;
+let repeaterLayer = null;
+let contextMenu = null;
 
 const iconOptions = {
     iconAnchor: [iconWidth / 2, iconHeight],
@@ -159,13 +163,19 @@ $(function () {
 
 function loadWeatherRadar() {
     status('Loading weather radar...');
-    var nexrad = new L.tileLayer.wms("https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi", {
-        layers: 'nexrad-n0r',
-        format: 'image/png',
-        transparent: true,
-        attribution: "Weather data &copy; 2015 IEM Nexrad",
-        style: 'opacity: 0.7',
-    }).addTo(map);
+    if (!radarLayer) {
+        radarLayer = new L.tileLayer.wms("https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi", {
+            layers: 'nexrad-n0r',
+            format: 'image/png',
+            transparent: true,
+            attribution: "Weather data &copy; 2015 IEM Nexrad",
+            style: 'opacity: 0.7',
+        });
+    }
+
+    if (!map.hasLayer(radarLayer)) {
+        radarLayer.addTo(map);
+    }
     status();
 }
 
@@ -173,6 +183,11 @@ function loadWeatherAlerts() {
     status('Loading weather alerts...');
 	const geoJsonUrl = 'https://api.weather.gov/alerts/active?status=actual&message_type=alert,update&area=MO,TN,MS,LA,TX,OK,AR&urgency=Immediate&severity=Extreme,Severe';
 	$.getJSON(geoJsonUrl, geojsonData => {
+		if (!weatherWarningsLayer) {
+			weatherWarningsLayer = L.layerGroup().addTo(map);
+		}
+
+		weatherWarningsLayer.clearLayers();
 		L.geoJSON(geojsonData, {
 			onEachFeature(feature, layer) {
 				if (feature.properties && feature.properties.headline && feature.properties.event) {
@@ -180,7 +195,7 @@ function loadWeatherAlerts() {
 				}
 			},
 			style: getWeatherStyle
-		}).addTo(map);
+		}).addTo(weatherWarningsLayer);
 
 		setTimeout(loadWeatherAlerts, howOftenToUpdateWeather * 1000);
 	});
@@ -266,6 +281,10 @@ function loadRepeaterList() {
 }
 
 function updateRepeaterMarkers() {
+    if (!repeaterLayer) {
+        repeaterLayer = L.layerGroup().addTo(map);
+    }
+
     repeaterList.forEach(repeater => {
         if (!repeater || !repeater.latitude || !repeater.longitude) {
             return;
@@ -288,7 +307,7 @@ AllStar Node: ${repeater.allstarNode || 'n/a'}
                 icon: getRepeaterMarkerIcon(isConnected)
             }).bindPopup(popupContent).bindTooltip(`${repeater.callsign} (${repeater.frequency || 'n/a'})`, nodeTooltipOptions);
 
-            markerCluster.addLayer(marker);
+            repeaterLayer.addLayer(marker);
             mapObjects.repeaterMarkers.set(markerName, marker);
         } else {
             marker.setIcon(getRepeaterMarkerIcon(isConnected));
@@ -385,6 +404,91 @@ var markerCluster = L.markerClusterGroup({
 });
 map.addLayer(markerCluster);
 
+map.on('contextmenu', onMapContextMenu);
+map.on('click', hideContextMenu);
+
 L.maplibreGL({
 	style: 'https://tiles.openfreemap.org/styles/dark'
 }).addTo(map);
+
+function onMapContextMenu(event) {
+    if (contextMenu) {
+        hideContextMenu();
+    }
+
+    const menu = L.DomUtil.create('div', 'map-context-menu');
+    menu.innerHTML = `
+        <div class="context-menu-title">Map Layers</div>
+        <label><input type="checkbox" data-layer="radar" checked> Radar</label>
+        <label><input type="checkbox" data-layer="weather" checked> Weather warnings</label>
+        <label><input type="checkbox" data-layer="repeaters" checked> Repeaters</label>
+        <label><input type="checkbox" data-layer="nodes" checked> Nodes</label>
+    `;
+
+    const menuItems = menu.querySelectorAll('input[data-layer]');
+    menuItems.forEach(item => {
+        item.checked = isLayerVisible(item.getAttribute('data-layer'));
+        item.addEventListener('change', function () {
+            toggleLayerVisibility(this.getAttribute('data-layer'), this.checked);
+        });
+    });
+
+    const mapContainer = document.getElementById('map');
+    mapContainer.appendChild(menu);
+
+    const point = map.latLngToContainerPoint(event.latlng);
+    const left = Math.min(Math.max(point.x + 10, 10), mapContainer.clientWidth - 180);
+    const top = Math.min(Math.max(point.y + 10, 10), mapContainer.clientHeight - 140);
+
+    menu.style.left = `${left}px`;
+    menu.style.top = `${top}px`;
+    contextMenu = menu;
+
+    L.DomEvent.preventDefault(event);
+    L.DomEvent.stopPropagation(event);
+}
+
+function hideContextMenu() {
+    if (contextMenu && contextMenu.parentNode) {
+        contextMenu.parentNode.removeChild(contextMenu);
+    }
+    contextMenu = null;
+}
+
+function isLayerVisible(layerName) {
+    switch (layerName) {
+        case 'radar':
+            return radarLayer ? map.hasLayer(radarLayer) : false;
+        case 'weather':
+            return weatherWarningsLayer ? map.hasLayer(weatherWarningsLayer) : false;
+        case 'repeaters':
+            return repeaterLayer ? map.hasLayer(repeaterLayer) : false;
+        case 'nodes':
+            return map.hasLayer(markerCluster);
+        default:
+            return true;
+    }
+}
+
+function toggleLayerVisibility(layerName, isVisible) {
+    switch (layerName) {
+        case 'radar':
+            if (radarLayer) {
+                isVisible ? radarLayer.addTo(map) : map.removeLayer(radarLayer);
+            }
+            break;
+        case 'weather':
+            if (weatherWarningsLayer) {
+                isVisible ? weatherWarningsLayer.addTo(map) : map.removeLayer(weatherWarningsLayer);
+            }
+            break;
+        case 'repeaters':
+            if (repeaterLayer) {
+                isVisible ? repeaterLayer.addTo(map) : map.removeLayer(repeaterLayer);
+            }
+            break;
+        case 'nodes':
+            isVisible ? markerCluster.addTo(map) : map.removeLayer(markerCluster);
+            break;
+    }
+}
