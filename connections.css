@@ -28,7 +28,7 @@ body {
     float: left;
 }
 
-    .iconPinRed, .iconPinOrange, .iconPinYellow, .iconPinGreen, .iconPinBlue, .iconPinIndigo, .iconPinViolet, .iconPinRepeaterConnected, .iconPinRepeaterDisconnected {
+    .iconPinRed, .iconPinOrange, .iconPinYellow, .iconPinGreen, .iconPinBlue, .iconPinIndigo, .iconPinViolet {
         display: inline-block;
         height: 45px !important;
         width: 45px !important;
@@ -63,12 +63,20 @@ body {
         background-image: url("icons/pin-violet.png");
     }
 
+    .iconPinRepeaterConnected, .iconPinRepeaterDisconnected {
+        display: inline-block;
+        height: 30px !important;
+        width: 30px !important;
+        background-size: 30px 30px;
+    }
+
     .iconPinRepeaterConnected {
-        background-image: url("icons/antenna-xmit-2.png");
+        background-image: url("icons/antenna-xmit-3.png");
     }
 
     .iconPinRepeaterDisconnected {
-        background-image: url("icons/antenna-recieving.png");
+        background-image: url("icons/antenna-xmit-1.png");
+        opacity: 0.5;
     }
 
 #divConnections {
