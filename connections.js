@@ -173,7 +173,7 @@ function loadWeatherRadar() {
             layers: 'nexrad-n0r',
             format: 'image/png',
             transparent: true,
-            attribution: "Weather data &copy; 2015 IEM Nexrad",
+            attribution: "Radar data &copy; 2015 IEM Nexrad",
             opacity: weatherRadarOpacity
         });
     }
@@ -204,8 +204,8 @@ function loadWeatherAlerts() {
 		}).addTo(weatherWarningsLayer);
 
 		setTimeout(loadWeatherAlerts, howOftenToUpdateWeather * 1000);
+        status();
 	});
-    status();
 }
 
 function getWeatherStyle(feature) {
@@ -426,8 +426,8 @@ function onMapContextMenu(event) {
     const menu = L.DomUtil.create('div', 'map-context-menu');
     menu.innerHTML = `
         <div class="context-menu-title">Map Layers</div>
-        <label><input type="checkbox" data-layer="radar" checked> Radar</label>
-        <label><input type="checkbox" data-layer="weather" checked> Weather warnings</label>
+        <label><input type="checkbox" data-layer="weatherRadar" checked> Radar</label>
+        <label><input type="checkbox" data-layer="weatherWarnings" checked> Weather warnings</label>
         <label><input type="checkbox" data-layer="repeaters" checked> Repeaters</label>
         <label><input type="checkbox" data-layer="nodes" checked> Nodes</label>
     `;
