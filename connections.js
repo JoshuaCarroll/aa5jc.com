@@ -163,6 +163,7 @@ $(function () {
 	loadWeatherRadar();
 	loadWeatherAlerts();
 	loadRepeaterList();
+	loadLayerPreferences();
 });
 
 function loadWeatherRadar() {
@@ -478,6 +479,46 @@ function isLayerVisible(layerName) {
     }
 }
 
+function saveLayerPreferences() {
+    const preferences = {
+        radar: isLayerVisible('radar'),
+        weather: isLayerVisible('weather'),
+        repeaters: isLayerVisible('repeaters'),
+        nodes: isLayerVisible('nodes')
+    };
+    document.cookie = `mapLayerPreferences=${JSON.stringify(preferences)}; path=/; max-age=${30 * 24 * 60 * 60}`; // 30 days
+}
+
+function loadLayerPreferences() {
+    const name = 'mapLayerPreferences=';
+    const decodedCookie = decodeURIComponent(document.cookie);
+    const cookieArray = decodedCookie.split(';');
+    
+    for (let i = 0; i < cookieArray.length; i++) {
+        const cookie = cookieArray[i].trim();
+        if (cookie.indexOf(name) === 0) {
+            try {
+                const preferences = JSON.parse(cookie.substring(name.length));
+                if (preferences.radar !== undefined && !preferences.radar) {
+                    map.removeLayer(radarLayer);
+                }
+                if (preferences.weather !== undefined && !preferences.weather && weatherWarningsLayer) {
+                    map.removeLayer(weatherWarningsLayer);
+                }
+                if (preferences.repeaters !== undefined && !preferences.repeaters && repeaterLayer) {
+                    map.removeLayer(repeaterLayer);
+                }
+                if (preferences.nodes !== undefined && !preferences.nodes) {
+                    map.removeLayer(markerCluster);
+                }
+            } catch (e) {
+                console.debug('Error parsing layer preferences cookie:', e);
+            }
+            return;
+        }
+    }
+}
+
 function toggleLayerVisibility(layerName, isVisible) {
     switch (layerName) {
         case 'radar':
@@ -499,4 +540,5 @@ function toggleLayerVisibility(layerName, isVisible) {
             isVisible ? markerCluster.addTo(map) : map.removeLayer(markerCluster);
             break;
     }
+    saveLayerPreferences();
 }
