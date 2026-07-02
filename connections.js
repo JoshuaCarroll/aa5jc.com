@@ -7,7 +7,7 @@ const tableRowNamePrefix = 't';
 const iconHeight = 45;
 const iconWidth = 45;
 
-const weatherRadarOpacity = 0.5;
+const weatherRadarOpacity = 0.15;
 const weatherWarningsFillOpacity = 0.25;
 const weatherWarningsBorderOpacity = 0.7;
 
@@ -163,6 +163,7 @@ $(function () {
 	loadWeatherRadar();
 	loadWeatherAlerts();
 	loadRepeaterList();
+	loadLayerPreferences();
 });
 
 function loadWeatherRadar() {
@@ -287,6 +288,7 @@ function loadRepeaterList() {
 function updateRepeaterMarkers() {
     if (!repeaterLayer) {
         repeaterLayer = L.layerGroup().addTo(map);
+        applyStoredLayerPreference('repeaters');
     }
 
     repeaterList.forEach(repeater => {
@@ -478,6 +480,65 @@ function isLayerVisible(layerName) {
     }
 }
 
+function saveLayerPreferences() {
+    const preferences = {
+        radar: isLayerVisible('radar'),
+        weather: isLayerVisible('weather'),
+        repeaters: isLayerVisible('repeaters'),
+        nodes: isLayerVisible('nodes')
+    };
+    document.cookie = `mapLayerPreferences=${JSON.stringify(preferences)}; path=/; max-age=${30 * 24 * 60 * 60}`; // 30 days
+}
+
+function loadLayerPreferences() {
+    const name = 'mapLayerPreferences=';
+    const decodedCookie = decodeURIComponent(document.cookie);
+    const cookieArray = decodedCookie.split(';');
+    
+    for (let i = 0; i < cookieArray.length; i++) {
+        const cookie = cookieArray[i].trim();
+        if (cookie.indexOf(name) === 0) {
+            try {
+                const preferences = JSON.parse(cookie.substring(name.length));
+                if (preferences.radar !== undefined && !preferences.radar && radarLayer) {
+                    map.removeLayer(radarLayer);
+                }
+                if (preferences.weather !== undefined && !preferences.weather && weatherWarningsLayer) {
+                    map.removeLayer(weatherWarningsLayer);
+                }
+                if (preferences.nodes !== undefined && !preferences.nodes) {
+                    map.removeLayer(markerCluster);
+                }
+                // Note: repeaters preference is applied separately in updateRepeaterMarkers()
+            } catch (e) {
+                console.debug('Error parsing layer preferences cookie:', e);
+            }
+            return;
+        }
+    }
+}
+
+function applyStoredLayerPreference(layerName) {
+    const name = 'mapLayerPreferences=';
+    const decodedCookie = decodeURIComponent(document.cookie);
+    const cookieArray = decodedCookie.split(';');
+    
+    for (let i = 0; i < cookieArray.length; i++) {
+        const cookie = cookieArray[i].trim();
+        if (cookie.indexOf(name) === 0) {
+            try {
+                const preferences = JSON.parse(cookie.substring(name.length));
+                if (layerName === 'repeaters' && preferences.repeaters !== undefined && !preferences.repeaters && repeaterLayer) {
+                    map.removeLayer(repeaterLayer);
+                }
+            } catch (e) {
+                console.debug('Error parsing layer preferences cookie:', e);
+            }
+            return;
+        }
+    }
+}
+
 function toggleLayerVisibility(layerName, isVisible) {
     switch (layerName) {
         case 'radar':
@@ -499,4 +560,5 @@ function toggleLayerVisibility(layerName, isVisible) {
             isVisible ? markerCluster.addTo(map) : map.removeLayer(markerCluster);
             break;
     }
+    saveLayerPreferences();
 }
