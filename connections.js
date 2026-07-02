@@ -7,7 +7,7 @@ const tableRowNamePrefix = 't';
 const iconHeight = 45;
 const iconWidth = 45;
 
-const weatherRadarOpacity = 0.5;
+const weatherRadarOpacity = 0.15;
 const weatherWarningsFillOpacity = 0.25;
 const weatherWarningsBorderOpacity = 0.7;
 
