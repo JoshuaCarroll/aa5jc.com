@@ -7,6 +7,10 @@ const tableRowNamePrefix = 't';
 const iconHeight = 45;
 const iconWidth = 45;
 
+const weatherRadarOpacity = 0.5;
+const weatherWarningsFillOpacity = 0.25;
+const weatherWarningsBorderOpacity = 0.7;
+
 let mapZoomLevel = 7;
 if (screen.height === 480) {
     mapZoomLevel = 5;
@@ -169,7 +173,7 @@ function loadWeatherRadar() {
             format: 'image/png',
             transparent: true,
             attribution: "Weather data &copy; 2015 IEM Nexrad",
-            opacity: 0.7
+            opacity: weatherRadarOpacity
         });
     }
 
@@ -209,7 +213,7 @@ function getWeatherStyle(feature) {
 
 	const color = weatherStyleMap[feature.properties.event];
 
-	return color ? { color, opacity: 0.7, fillColor: color, fillOpacity: 0.25 } : {};
+	return color ? { color, opacity: weatherWarningsBorderOpacity, fillColor: color, fillOpacity: weatherWarningsFillOpacity } : {};
 }
 
 function loadAllstarConnections() {
@@ -432,6 +436,10 @@ function onMapContextMenu(event) {
             toggleLayerVisibility(this.getAttribute('data-layer'), this.checked);
         });
     });
+
+    menu.addEventListener('click', event => event.stopPropagation());
+    menu.addEventListener('mousedown', event => event.stopPropagation());
+    menu.addEventListener('contextmenu', event => event.stopPropagation());
 
     const mapContainer = document.getElementById('map');
     mapContainer.appendChild(menu);
