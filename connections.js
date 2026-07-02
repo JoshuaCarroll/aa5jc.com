@@ -288,6 +288,7 @@ function loadRepeaterList() {
 function updateRepeaterMarkers() {
     if (!repeaterLayer) {
         repeaterLayer = L.layerGroup().addTo(map);
+        applyStoredLayerPreference('repeaters');
     }
 
     repeaterList.forEach(repeater => {
@@ -499,17 +500,36 @@ function loadLayerPreferences() {
         if (cookie.indexOf(name) === 0) {
             try {
                 const preferences = JSON.parse(cookie.substring(name.length));
-                if (preferences.radar !== undefined && !preferences.radar) {
+                if (preferences.radar !== undefined && !preferences.radar && radarLayer) {
                     map.removeLayer(radarLayer);
                 }
                 if (preferences.weather !== undefined && !preferences.weather && weatherWarningsLayer) {
                     map.removeLayer(weatherWarningsLayer);
                 }
-                if (preferences.repeaters !== undefined && !preferences.repeaters && repeaterLayer) {
-                    map.removeLayer(repeaterLayer);
-                }
                 if (preferences.nodes !== undefined && !preferences.nodes) {
                     map.removeLayer(markerCluster);
+                }
+                // Note: repeaters preference is applied separately in updateRepeaterMarkers()
+            } catch (e) {
+                console.debug('Error parsing layer preferences cookie:', e);
+            }
+            return;
+        }
+    }
+}
+
+function applyStoredLayerPreference(layerName) {
+    const name = 'mapLayerPreferences=';
+    const decodedCookie = decodeURIComponent(document.cookie);
+    const cookieArray = decodedCookie.split(';');
+    
+    for (let i = 0; i < cookieArray.length; i++) {
+        const cookie = cookieArray[i].trim();
+        if (cookie.indexOf(name) === 0) {
+            try {
+                const preferences = JSON.parse(cookie.substring(name.length));
+                if (layerName === 'repeaters' && preferences.repeaters !== undefined && !preferences.repeaters && repeaterLayer) {
+                    map.removeLayer(repeaterLayer);
                 }
             } catch (e) {
                 console.debug('Error parsing layer preferences cookie:', e);
