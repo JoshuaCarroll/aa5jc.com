@@ -24,7 +24,7 @@ const mapObjects = {
 
 let connectedAllStarNodes = new Set();
 let repeaterList = [];
-let radarLayer = null;
+let weatherRadarLayer = null;
 let weatherWarningsLayer = null;
 let repeaterLayer = null;
 let contextMenu = null;
@@ -168,8 +168,8 @@ $(function () {
 
 function loadWeatherRadar() {
     status('Loading weather radar...');
-    if (!radarLayer) {
-        radarLayer = new L.tileLayer.wms("https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi", {
+    if (!weatherRadarLayer) {
+        weatherRadarLayer = new L.tileLayer.wms("https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi", {
             layers: 'nexrad-n0r',
             format: 'image/png',
             transparent: true,
@@ -178,8 +178,8 @@ function loadWeatherRadar() {
         });
     }
 
-    if (!map.hasLayer(radarLayer)) {
-        radarLayer.addTo(map);
+    if (!map.hasLayer(weatherRadarLayer)) {
+        weatherRadarLayer.addTo(map);
     }
     status();
 }
@@ -190,6 +190,7 @@ function loadWeatherAlerts() {
 	$.getJSON(geoJsonUrl, geojsonData => {
 		if (!weatherWarningsLayer) {
 			weatherWarningsLayer = L.layerGroup().addTo(map);
+			applyStoredLayerPreference('weatherWarnings');
 		}
 
 		weatherWarningsLayer.clearLayers();
@@ -467,9 +468,9 @@ function hideContextMenu() {
 
 function isLayerVisible(layerName) {
     switch (layerName) {
-        case 'radar':
-            return radarLayer ? map.hasLayer(radarLayer) : false;
-        case 'weather':
+        case 'weatherRadar':
+            return weatherRadarLayer ? map.hasLayer(weatherRadarLayer) : false;
+        case 'weatherWarnings':
             return weatherWarningsLayer ? map.hasLayer(weatherWarningsLayer) : false;
         case 'repeaters':
             return repeaterLayer ? map.hasLayer(repeaterLayer) : false;
@@ -482,8 +483,8 @@ function isLayerVisible(layerName) {
 
 function saveLayerPreferences() {
     const preferences = {
-        radar: isLayerVisible('radar'),
-        weather: isLayerVisible('weather'),
+        weatherRadar: isLayerVisible('weatherRadar'),
+        weatherWarnings: isLayerVisible('weatherWarnings'),
         repeaters: isLayerVisible('repeaters'),
         nodes: isLayerVisible('nodes')
     };
@@ -500,10 +501,10 @@ function loadLayerPreferences() {
         if (cookie.indexOf(name) === 0) {
             try {
                 const preferences = JSON.parse(cookie.substring(name.length));
-                if (preferences.radar !== undefined && !preferences.radar && radarLayer) {
-                    map.removeLayer(radarLayer);
+                if (preferences.weatherRadar !== undefined && !preferences.weatherRadar && weatherRadarLayer) {
+                    map.removeLayer(weatherRadarLayer);
                 }
-                if (preferences.weather !== undefined && !preferences.weather && weatherWarningsLayer) {
+                if (preferences.weatherWarnings !== undefined && !preferences.weatherWarnings && weatherWarningsLayer) {
                     map.removeLayer(weatherWarningsLayer);
                 }
                 if (preferences.nodes !== undefined && !preferences.nodes) {
@@ -541,12 +542,12 @@ function applyStoredLayerPreference(layerName) {
 
 function toggleLayerVisibility(layerName, isVisible) {
     switch (layerName) {
-        case 'radar':
-            if (radarLayer) {
-                isVisible ? radarLayer.addTo(map) : map.removeLayer(radarLayer);
+        case 'weatherRadar':
+            if (weatherRadarLayer) {
+                isVisible ? weatherRadarLayer.addTo(map) : map.removeLayer(weatherRadarLayer);
             }
             break;
-        case 'weather':
+        case 'weatherWarnings':
             if (weatherWarningsLayer) {
                 isVisible ? weatherWarningsLayer.addTo(map) : map.removeLayer(weatherWarningsLayer);
             }
