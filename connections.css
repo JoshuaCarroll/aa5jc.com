@@ -76,7 +76,7 @@ body {
 
     .iconPinRepeaterDisconnected {
         background-image: url("icons/antenna-xmit-1.png");
-        opacity: 0.5;
+        opacity: 1;
     }
 
 #map {
