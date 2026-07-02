@@ -492,6 +492,7 @@ function saveLayerPreferences() {
 }
 
 function loadLayerPreferences() {
+    status('Loading layer preferences...');
     const name = 'mapLayerPreferences=';
     const decodedCookie = decodeURIComponent(document.cookie);
     const cookieArray = decodedCookie.split(';');
