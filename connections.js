@@ -280,10 +280,79 @@ function loadRepeaterList() {
         return;
     }
 
-    $.getJSON('repeater-list.json', data => {
-        repeaterList = Array.isArray(data) ? data : [];
+    $.getJSON('https://skywarn.arkansasauxcomm.org/api/weather/repeaters/geojson', data => {
+        repeaterList = normalizeRepeaterList(data);
         updateRepeaterMarkers();
     });
+}
+
+function normalizeRepeaterList(data) {
+    const features = getGeoJsonFeatures(data);
+
+    return features
+        .map((feature, index) => normalizeRepeaterFeature(feature, index))
+        .filter(Boolean);
+}
+
+function getGeoJsonFeatures(data) {
+    if (!data) {
+        return [];
+    }
+
+    if (Array.isArray(data)) {
+        return data;
+    }
+
+    if (data.type === 'FeatureCollection' && Array.isArray(data.features)) {
+        return data.features;
+    }
+
+    if (data.type === 'Feature') {
+        return [data];
+    }
+
+    return [];
+}
+
+function normalizeRepeaterFeature(feature, index) {
+    if (!feature) {
+        return null;
+    }
+
+    const properties = feature.properties || feature;
+    const coordinates = getFeatureCoordinates(feature, properties);
+    if (!coordinates) {
+        return null;
+    }
+
+    const [longitude, latitude] = coordinates;
+
+    return {
+        id: properties.id || properties.callsign || properties.allstarNode || `repeater-${index}`,
+        callsign: properties.callsign || 'Unknown',
+        outputFrequency: properties.outputFrequency || properties.frequency || null,
+        inputFrequency: properties.inputFrequency || properties.offset || null,
+        tone: properties.tone || null,
+        city: properties.city || null,
+        state: properties.state || null,
+        location: properties.location || null,
+        sponsor: properties.sponsor || null,
+        allstarNode: properties.allstarNode || null,
+        latitude,
+        longitude
+    };
+}
+
+function getFeatureCoordinates(feature, properties) {
+    if (feature.geometry && Array.isArray(feature.geometry.coordinates) && feature.geometry.coordinates.length >= 2) {
+        return [Number(feature.geometry.coordinates[0]), Number(feature.geometry.coordinates[1])];
+    }
+
+    if (properties && properties.longitude !== undefined && properties.latitude !== undefined) {
+        return [Number(properties.longitude), Number(properties.latitude)];
+    }
+
+    return null;
 }
 
 function updateRepeaterMarkers() {
@@ -293,26 +362,28 @@ function updateRepeaterMarkers() {
     }
 
     repeaterList.forEach(repeater => {
-        if (!repeater || !repeater.latitude || !repeater.longitude) {
+        if (!repeater || Number.isNaN(repeater.latitude) || Number.isNaN(repeater.longitude)) {
             return;
         }
 
-        const markerName = `repeater-${repeater.callsign}`;
+        const markerName = `repeater-${repeater.id}`;
         const isConnected = Boolean(repeater.allstarNode && connectedAllStarNodes.has(String(repeater.allstarNode)));
         let marker = mapObjects.repeaterMarkers.get(markerName);
 
         if (!marker) {
+            const locationText = repeater.location || [repeater.city, repeater.state].filter(Boolean).join(', ') || 'n/a';
             const popupContent = `
 <b>${repeater.callsign}</b><br>
-Freq: ${repeater.frequency || 'n/a'}<br>
-Offset: ${repeater.offset || 'n/a'}<br>
-Tone: ${repeater.tone || 'n/a'}<br>
-City: ${repeater.city || 'n/a'}, ${repeater.state || 'n/a'}<br>
+Output: ${repeater.outputFrequency || 'n/a'}<br>
+Input: ${repeater.inputFrequency || 'n/a'}<br>
+Tone/Code: ${repeater.tone || 'n/a'}<br>
+Location: ${locationText}<br>
+Sponsor: ${repeater.sponsor || 'n/a'}<br>
 AllStar Node: ${repeater.allstarNode || 'n/a'}
 `;
             marker = L.marker([repeater.latitude, repeater.longitude], {
                 icon: getRepeaterMarkerIcon(isConnected)
-            }).bindPopup(popupContent).bindTooltip(`${repeater.callsign} (${repeater.frequency || 'n/a'})`, nodeTooltipOptions);
+            }).bindPopup(popupContent).bindTooltip(`${repeater.callsign} (${repeater.outputFrequency || 'n/a'})`, nodeTooltipOptions);
 
             repeaterLayer.addLayer(marker);
             mapObjects.repeaterMarkers.set(markerName, marker);
